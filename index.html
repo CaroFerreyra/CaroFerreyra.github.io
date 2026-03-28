@@ -723,5 +723,15 @@ setLang(lang);
   setTimeout(() => sp.classList.remove('hinting'), 23000);
 })();
 </script>
+
+<script>
+// Scroll to hash on page load (e.g. index.html#contacto)
+window.addEventListener('load', function() {
+  if (window.location.hash) {
+    const target = document.querySelector(window.location.hash);
+    if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+});
+</script>
 </body>
 </html>
