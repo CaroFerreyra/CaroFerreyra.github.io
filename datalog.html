@@ -132,10 +132,10 @@ nav {
   display: flex; align-items: center; gap: 4px;
   font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .1em;
 }
-.nav-lang .nl-active   { color: var(--text) }
-.nav-lang .nl-sep      { color: var(--surface) }
-.nav-lang .nl-inactive { color: var(--muted); cursor: none; transition: color .2s }
-.nav-lang .nl-inactive:hover { color: var(--text) }
+.nav-lang button { padding:6px 11px; color:var(--muted); transition:color .25s,background .25s; letter-spacing:.1em; border-right:1px solid var(--border) }
+.nav-lang button:last-child { border-right:none }
+.nav-lang button.active { color:var(--accent) }
+.nav-lang button:not(.active):hover { color:var(--text) }
 /* Icon circle — 34x34, border */
 .nav-icon {
   width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
@@ -396,10 +396,9 @@ footer {
     <a href="https://carolina-ferreyra.notion.site/Carolina-Ferreyra-04e3e8ecbef94b14a1a25b7388e45011"
        target="_blank" class="nav-cv">CV ↗</a>
 
-    <div class="nav-lang">
-      <span id="btn-es" class="nl-active"   onclick="setLang('es')">ES</span>
-      <span class="nl-sep">/</span>
-      <span id="btn-en" class="nl-inactive" onclick="setLang('en')">EN</span>
+    <div class="nav-lang" role="group" aria-label="Seleccionar idioma">
+      <button id="btn-es" class="active" onclick="setLang('es')" aria-label="Español">ES</button>
+      <button id="btn-en" onclick="setLang('en')" aria-label="English">EN</button>
     </div>
 
     <a href="https://www.linkedin.com/in/carolina-ferreyra/" target="_blank"
@@ -581,8 +580,8 @@ const T = {
 function setLang(l) {
   localStorage.setItem('lang', l);
   document.documentElement.lang = l;
-  document.getElementById('btn-es').className = l === 'es' ? 'nl-active' : 'nl-inactive';
-  document.getElementById('btn-en').className = l === 'en' ? 'nl-active' : 'nl-inactive';
+  document.getElementById('btn-es').className = l === 'es' ? 'active' : '';
+  document.getElementById('btn-en').className = l === 'en' ? 'active' : '';
   document.querySelectorAll('[data-k]').forEach(el => {
     const k = el.dataset.k;
     if (T[l][k] !== undefined) el.innerHTML = T[l][k];
