@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welly — Carolina Ferreyra</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ────────────────────────────────────────────────────────────── */
+:root {
+  --bg:      #080808;
+  --surface: #111111;
+  --bg3:     #1a1a1a;
+  --text:    #f9f9f9;
+  --muted:   #aeaeae;
+  --accent:  #c8ff4c;
+  --border:  rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.18);
+}
+[data-theme="light"] {
+  --bg:      #f0efe9;
+  --surface: #e4e3dd;
+  --bg3:     #d8d7d1;
+  --text:    #0a0a0a;
+  --muted:   #525252;
+  --accent:  #2d6000;
+  --border:  rgba(0,0,0,0.10);
+  --border2: rgba(0,0,0,0.22);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0 }
+html { scroll-behavior: smooth }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  cursor: none;
+  overflow-x: hidden;
+  opacity: 0;
+  transition: background .4s, color .4s, opacity .35s ease;
+  padding-top: 72px;
+}
+body.loaded{opacity:1}
+body.leaving{opacity:0;transition:opacity .25s ease}
+@media(hover:none),(pointer:coarse){body,button,a{cursor:auto}}
+a   { color: inherit; text-decoration: none }
+img { max-width: 100%; display: block }
+button { background: none; border: none; cursor: none; font-family: inherit; color: inherit }
+
+/* ── CURSOR ──────────────────────────────────────────────────────────── */
+#cursor-glass {
+  position: fixed; width: 10px; height: 10px; border-radius: 50%;
+  pointer-events: none; z-index: 9999; transform: translate(-50%,-50%);
+  background: #fff; mix-blend-mode: difference;
+  transition: opacity .15s, transform .15s;
+}
+body.cactive #cursor-glass { opacity: 0; transform: translate(-50%,-50%) scale(0) }
+
+#cursor-ring {
+  position: fixed; width: 12px; height: 12px; border-radius: 50%;
+  pointer-events: none; z-index: 9997; transform: translate(-50%,-50%);
+  border: 1.5px solid rgba(255,255,255,0.28);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06),
+              0 8px 32px rgba(0,0,0,0.35),
+              inset 0 1px 0 rgba(255,255,255,0.12);
+  backdrop-filter: contrast(1.1) brightness(1.04) saturate(1.15);
+  -webkit-backdrop-filter: contrast(1.1) brightness(1.04) saturate(1.15);
+  opacity: 0;
+  transition: width .24s cubic-bezier(.25,.46,.45,.94),
+              height .24s cubic-bezier(.25,.46,.45,.94),
+              opacity .2s;
+  will-change: left, top;
+}
+#cursor-ring.on { width: 80px; height: 80px; opacity: 1 }
+[data-theme="light"] #cursor-ring { border-color: rgba(0,0,0,0.18); box-shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.10) }
+
+/* ── NAVBAR ──────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 72px; padding: 0 48px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--surface);
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background .4s, border-color .4s;
+}
+.nav-logo {
+  font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  flex-shrink: 0; transition: color .2s;
+}
+.nav-logo:hover { color: var(--accent) }
+.nav-center {
+  flex: 1; display: flex; justify-content: center; align-items: center; gap: 36px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); transition: color .2s; white-space: nowrap;
+}
+.nav-link:hover { color: var(--text) }
+.nav-num { color: var(--accent); font-size: 10px }
+.nav-right { display: flex; align-items: center; gap: 24px; flex-shrink: 0 }
+.nav-cv {
+  padding: 7px 15px; border-radius: 20px;
+  border: 1px solid var(--border);
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); transition: color .25s, border-color .25s;
+}
+.nav-cv:hover { border-color: var(--accent); color: var(--accent) }
+.nav-lang {
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .1em;
+}
+.nav-lang .nl-active   { color: var(--text) }
+.nav-lang .nl-sep      { color: var(--muted) }
+.nav-lang .nl-inactive { color: var(--muted); cursor: none; transition: color .2s }
+.nav-lang .nl-inactive:hover { color: var(--text) }
+.nav-icon {
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 50%;
+  color: var(--muted); transition: color .25s, border-color .25s; cursor: none;
+}
+.nav-icon:hover { border-color: var(--accent); color: var(--accent) }
+
+/* ── PAGE WRAPPER ──────────────────────────────────────────────────── */
+.page { position: relative; overflow: hidden }
+
+/* Glow blob */
+.glow {
+  position: absolute; pointer-events: none; z-index: 0;
+  width: 414px; height: 427px;
+  left: 513px; top: 718.7px;
+  background: #d9d9d9; filter: blur(400px); border-radius: 50%;
+}
+
+/* ── MAIN CONTENT WRAPPER ──────────────────────────────────────────── */
+.dl-wrap {
+  position: relative; z-index: 1;
+  padding: 80px 140px 100px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 56px;
+}
+
+/* ── HEADER ────────────────────────────────────────────────────────── */
+.mhead {
+  width: 100%;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 0;
+  margin-bottom: 0;
+}
+.meyebrow {
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  letter-spacing: .15em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 12px;
+}
+.mtitle {
+  font-size: clamp(44px,7vw,92px); font-weight: 700;
+  letter-spacing: -.03em; text-transform: uppercase; line-height: .88;
+  margin-bottom: 24px;
+}
+.mhead-desc {
+  font-size: 16px; line-height: 1.7; color: var(--muted);
+  margin: 0 0 32px; max-width: 960px;
+}
+.mtags {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  justify-content: flex-start; margin-bottom: 32px;
+}
+.mtag {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .08em; padding: 5px 13px;
+  border: 1px solid var(--border2); border-radius: 20px;
+  color: var(--muted); text-transform: uppercase;
+}
+.mmeta {
+  display: flex; flex-wrap: wrap; gap: 48px;
+  justify-content: flex-start;
+}
+.mmeta-dl { justify-content: flex-start }
+.mmi { display: flex; flex-direction: column; gap: 4px }
+.mmil {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .15em; text-transform: uppercase; color: var(--muted);
+}
+.mmiv { font-size: 14px; font-weight: 500 }
+
+/* ── OVERVIEW ──────────────────────────────────────────────────────── */
+.moverview {
+  width: 100%;
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 16px;
+  margin-bottom: 0;
+}
+.moverview-label {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .15em; text-transform: uppercase;
+  color: var(--accent); display: block;
+}
+.moverview-text { font-size: 17px; line-height: 1.75; color: var(--text); width: 100% }
+
+/* ── GALLERY / IMAGE BLOCKS ────────────────────────────────────────── */
+.mgallery-dl {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 24px;
+}
+.mgallery-dl img, .mgallery-dl .g-ph { display: block; width: 100%; height: auto; transition: opacity .3s, transform .4s cubic-bezier(.22,1,.36,1) }
+.mgallery-dl img:hover { opacity: .88; transform: scale(1.015) }
+
+/* ── CASE CARDS GRID ───────────────────────────────────────────────── */
+.mcase-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 16px;
+}
+.mcase-card {
+  background: var(--surface); padding: 28px;
+  display: flex; flex-direction: column; gap: 8px;
+  border-left: 2px solid transparent;
+  transition: background .25s, border-color .25s, transform .25s;
+}
+.mcase-card:hover { background: var(--bg3); border-left-color: var(--accent); transform: translateY(-2px) }
+.mcase-title {
+  font-size: 32px; font-weight: 700;
+  letter-spacing: -.02em; line-height: 1.1;
+  color: var(--accent); margin-bottom: 8px;
+}
+.mcase-body { font-size: 14px; line-height: 1.75; color: var(--muted) }
+.mcase-body p { margin-bottom: 1em }
+.mcase-body p:last-child { margin-bottom: 0 }
+
+/* ── WELLY SPECIFIC ─────────────────────────────────────────────────── */
+.mwelly-img { display: block; width: 100%; height: auto }
+.mwelly-white {
+  display: flex; align-items: center; justify-content: center; padding: 40px 0;
+}
+[data-theme="light"] .mwelly-white { background: #f5f5f5 }
+.mwelly-white img { display: block; max-width: 100%; height: auto }
+.mwelly-glow { position: relative; overflow: hidden }
+.mwelly-glow::after {
+  content: ''; position: absolute; top: 30%; left: 25%;
+  width: 35%; padding-top: 35%; border-radius: 50%;
+  background: rgba(200,255,76,.07); filter: blur(80px); pointer-events: none;
+}
+
+/* ── SCROLL REVEAL ──────────────────────────────────────────────────── */
+.m-reveal { opacity: 0; transform: translateY(28px); transition: opacity .75s cubic-bezier(.22,1,.36,1), transform .75s cubic-bezier(.22,1,.36,1); will-change: transform }
+.m-reveal.vis { opacity: 1; transform: translateY(0) }
+.rev { opacity: 0; transform: translateY(32px); transition: opacity .75s cubic-bezier(.22,1,.36,1), transform .75s cubic-bezier(.22,1,.36,1); will-change: transform }
+.rev.vis { opacity: 1; transform: translateY(0) }
+.rev:nth-child(2){transition-delay:.08s}
+.rev:nth-child(3){transition-delay:.16s}
+.rev:nth-child(4){transition-delay:.24s}
+
+/* ── PROJECT NAV ────────────────────────────────────────────────────── */
+.proj-nav {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+  width: 100%; margin-top: 80px;
+}
+.pn-item {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 32px 24px; cursor: none;
+  transition: background .2s;
+}
+.pn-item:hover { background: var(--surface) }
+.pn-item:hover .pn-title { color: var(--accent) }
+.pn-prev { padding-right: 64px; border-right: 1px solid var(--border) }
+.pn-next { padding-left: 64px; text-align: right }
+.pn-label {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+}
+.pn-num  { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: .12em }
+.pn-title {
+  font-size: clamp(22px, 3vw, 36px); font-weight: 700;
+  letter-spacing: -.02em; text-transform: uppercase;
+  line-height: 1; color: var(--text); transition: color .2s;
+}
+.pn-sub { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .1em; color: var(--muted) }
+.pn-arrow{display:inline-block;transition:transform .25s cubic-bezier(.22,1,.36,1)}
+.pn-prev:hover .pn-arrow{transform:translateX(-5px)}
+.pn-next:hover .pn-arrow{transform:translateX(5px)}
+
+/* ── FOOTER ─────────────────────────────────────────────────────────── */
+footer {
+  padding: 28px 48px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ft { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .08em; color: var(--muted) }
+
+/* ── ANIMATIONS ─────────────────────────────────────────────────────── */
+@keyframes fu { from { opacity:0; transform:translateY(18px) } to { opacity:1; transform:translateY(0) } }
+
+/* ── PREFERS-REDUCED-MOTION ─────────────────────────────────────────── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  .rev,.m-reveal{opacity:1;transform:none;transition:none}
+  .rev.vis,.m-reveal.vis{opacity:1;transform:none}
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────────── */
+@media(max-width:1300px){
+  .dl-wrap{padding:80px 48px 100px}
+}
+@media(max-width:960px){
+  nav{padding:0 24px}
+  .nav-center{display:none}
+  .dl-wrap{padding:48px 24px 80px;gap:40px}
+  .mcase-grid{grid-template-columns:1fr 1fr}
+  .mmeta{gap:20px;flex-wrap:wrap}
+  .mtitle{font-size:clamp(36px,6vw,72px)}
+  .mhead-desc{font-size:15px}
+  .mwelly-img{border-radius:6px}
+}
+@media(max-width:768px){
+  .dl-wrap{padding:36px 20px 60px;gap:32px}
+  .mmeta{gap:14px}
+  .mmeta .mmi{flex:1 1 40%;min-width:0}
+  .pn-prev{padding-right:32px}
+  .pn-next{padding-left:32px}
+  .pn-title{font-size:clamp(18px,5vw,28px)}
+  .mwelly-white{padding:24px 16px}
+}
+@media(max-width:600px){
+  .mcase-grid{grid-template-columns:1fr}
+  footer{flex-direction:column;gap:12px;text-align:center}
+  .mtitle{font-size:clamp(28px,10vw,52px)}
+  .mcase-title{font-size:18px}
+  .mcase-body{font-size:13px}
+  .mtags{gap:6px}
+  .mtag{font-size:10px;padding:5px 10px}
+  .pn-prev{padding:20px 16px;border-right:none;border-bottom:1px solid var(--border)}
+  .pn-next{padding:20px 16px}
+  .proj-nav{flex-direction:column}
+  .pn-title{font-size:clamp(16px,6vw,24px)}
+  .mwelly-white{padding:16px 12px}
+  .glow{width:280px;height:280px}
+}
+</style>
+<script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t)})();</script>
+</head>
+<body>
+
+<div id="cursor-glass" aria-hidden="true"></div>
+<div id="cursor-ring" aria-hidden="true"></div>
+
+<!-- ── NAVBAR ─────────────────────────────────────────────────────────── -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo">CF ✦</a>
+
+  <div class="nav-center">
+    <a href="index.html#works"   class="nav-link"><span class="nav-num">00</span> <span data-k="nav_works">Trabajos</span></a>
+    <a href="index.html#about"   class="nav-link"><span class="nav-num">01</span> <span data-k="nav_about">Sobre mí</span></a>
+    <a href="contact.html" class="nav-link"><span class="nav-num">02</span> <span data-k="nav_contact">Contacto</span></a>
+  </div>
+
+  <div class="nav-right">
+    <a href="https://carolina-ferreyra.notion.site/Carolina-Ferreyra-04e3e8ecbef94b14a1a25b7388e45011"
+       target="_blank" rel="noopener noreferrer" class="nav-cv">CV ↗</a>
+
+    <div class="nav-lang">
+      <span id="btn-es" class="nl-active"   onclick="setLang('es')" style="cursor:none">ES</span>
+      <span class="nl-sep">/</span>
+      <span id="btn-en" class="nl-inactive" onclick="setLang('en')" style="cursor:none">EN</span>
+    </div>
+
+    <a href="https://www.linkedin.com/in/carolina-ferreyra/" target="_blank" rel="noopener noreferrer"
+       class="nav-icon" title="LinkedIn">
+      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+      </svg>
+    </a>
+
+    <button class="nav-icon" onclick="toggleTheme()" title="Toggle theme" id="theme-toggle">
+      <svg id="ico-dark" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+      <svg id="ico-light" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ── PAGE ──────────────────────────────────────────────────────────── -->
+<div class="page">
+  <div class="glow" aria-hidden="true"></div>
+
+  <div class="dl-wrap">
+
+    <!-- ── HEADER ──────────────────────────────────────────────────── -->
+    <div class="mhead rev">
+      <p class="meyebrow" data-k="eyebrow">— 02 · E-COMMERCE · MÁSTER ELISAVA</p>
+      <h1 class="mtitle">WELLY</h1>
+      <p class="mhead-desc" data-k="head_desc">Rediseño de la funcionalidad de filtros para Welly, una plataforma e-commerce especializada en vendas corporales. La nueva función permite encontrar fácilmente el producto correcto según talla, cantidad y necesidades específicas — especialmente útil para usuarios nuevos que no conocen la variedad de productos.</p>
+      <div class="mtags">
+        <span class="mtag">UX/UI Design</span>
+        <span class="mtag">E-Commerce</span>
+        <span class="mtag">Design System</span>
+        <span class="mtag">User Research</span>
+        <span class="mtag" data-k="tag_filters">Filtros &amp; Búsqueda</span>
+        <span class="mtag">Figma</span>
+      </div>
+      <div class="mmeta mmeta-dl">
+        <div class="mmi">
+          <span class="mmil" data-k="role_l">ROL</span>
+          <span class="mmiv">UX/UI Designer</span>
+        </div>
+        <div class="mmi">
+          <span class="mmil" data-k="ctx_l">CONTEXTO</span>
+          <span class="mmiv" data-k="ctx_v">Proyecto de Máster — ELISAVA</span>
+        </div>
+        <div class="mmi">
+          <span class="mmil" data-k="tools_l">HERRAMIENTAS</span>
+          <span class="mmiv">Figma</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── OVERVIEW ────────────────────────────────────────────────── -->
+    <div class="moverview m-reveal">
+      <span class="moverview-label">✦ OVERVIEW</span>
+      <p class="moverview-text" data-k="overview">Welly es una plataforma e-commerce especializada en vendas corporales con una amplia variedad de productos. El reto: los usuarios nuevos no sabían cómo elegir el producto correcto. Se rediseñó la experiencia de filtros para guiar por talla, zona corporal, cantidad y tipo de uso — reduciendo la fricción y mejorando la conversión.</p>
+    </div>
+
+    <!-- ── GALLERY ─────────────────────────────────────────────────── -->
+    <div class="mgallery-dl mwelly-glow">
+
+      <img class="mwelly-img m-reveal" src="image/welly/welly-1.png" alt="Welly — Mockups" loading="lazy">
+
+      <!-- Cards row 1: Contexto, Sobre la marca, Solución -->
+      <div class="mcase-grid">
+        <div class="mcase-card m-reveal" style="transition-delay:.05s">
+          <h3 class="mcase-title" data-k="c1t">Contexto</h3>
+          <div class="mcase-body" data-k="c1b"><p>Welly es una plataforma de e-commerce especializada en vendas corporales diseñadas para distintas partes del cuerpo. En este proyecto mejoramos la experiencia de usuario introduciendo una nueva funcionalidad de filtros, que permite encontrar fácilmente el producto correcto según talla, cantidad y necesidades específicas.</p></div>
+        </div>
+        <div class="mcase-card m-reveal" style="transition-delay:.15s">
+          <h3 class="mcase-title" data-k="c2t">Sobre la marca</h3>
+          <div class="mcase-body" data-k="c2b"><p>Welly se especializa en crear vendas diseñadas para distintas zonas del cuerpo. Sus productos no solo ofrecen protección, sino también un toque divertido a la experiencia. Con colores vibrantes y estampados alegres, están pensadas para que puedas llevar tus heridas con orgullo.</p></div>
+        </div>
+        <div class="mcase-card m-reveal" style="transition-delay:.25s">
+          <h3 class="mcase-title" data-k="c3t">Solución</h3>
+          <div class="mcase-body" data-k="c3b"><p>Proponemos implementar filtros que permitan una búsqueda más personalizada y controlada. Estos filtros clasifican las vendas para facilitar la comparación entre opciones — especialmente útil para nuevos usuarios que no conocen la variedad de productos Welly.</p></div>
+        </div>
+      </div>
+
+      <img class="mwelly-img m-reveal" src="image/welly/welly-2.png" alt="Welly — Mockups 2" loading="lazy">
+
+      <!-- Cards row 2: Baja fidelidad, Design System, Aprendizajes -->
+      <div class="mcase-grid">
+        <div class="mcase-card m-reveal" style="transition-delay:.05s">
+          <h3 class="mcase-title" data-k="c4t">Baja fidelidad</h3>
+          <div class="mcase-body" data-k="c4b"><p>Este wireframe de baja fidelidad ilustra el flujo de usuario en la plataforma Welly, desde la selección del producto hasta el proceso de compra.</p><p>Se enfoca en estructura, layout y usabilidad antes de avanzar a diseños de alta fidelidad.</p><p><strong style="color:var(--text)">Flujo de usuario:</strong> Muestra cómo navegan las categorías, aplican filtros y llegan al checkout.</p><p><strong style="color:var(--text)">Retroalimentación e iteración:</strong> Las anotaciones señalan áreas de mejora detectadas en las pruebas tempranas.</p><p><strong style="color:var(--text)">Próximos pasos:</strong> Estos insights guiarán las iteraciones hacia prototipos de alta fidelidad más intuitivos.</p></div>
+        </div>
+        <div class="mcase-card m-reveal" style="transition-delay:.15s">
+          <h3 class="mcase-title" data-k="c5t">Sistema de Diseño</h3>
+          <div class="mcase-body" data-k="c5b"><p>El sistema de diseño de Welly promueve consistencia y escalabilidad integrando colores, tipografía, grillas e iconos para una experiencia visual unificada.</p><p>— Migración de marca: evaluamos el sitio actual y transferimos los elementos de branding a Figma.</p><p>— Creación de componentes: desarrollamos botones, dropdowns e inputs desde cero en una librería reutilizable.</p><p>— Estructura en grilla: layout responsivo adaptable a distintos dispositivos.</p><p>— Documentación: todos los componentes están documentados en Figma para facilitar la colaboración.</p></div>
+        </div>
+        <div class="mcase-card m-reveal" style="transition-delay:.25s">
+          <h3 class="mcase-title" data-k="c6t">Aprendizajes</h3>
+          <div class="mcase-body" data-k="c6b"><p>Visualización del diseño: mejoré en representar y comunicar conceptos con claridad.</p><p>Resolución de problemas: desarrollé habilidades al enfrentar y resolver fallos de interacción.</p><p>Comunicación con el equipo: garanticé la comprensión del diseño para una implementación exitosa.</p><p>Consistencia: agregué nuevas funciones manteniendo colores y acciones coherentes.</p><p>Simplificación del flujo: hice la navegación más intuitiva en distintos productos.</p><p>Uso de Figma — Variables, Librerías. Estas experiencias enriquecieron mi crecimiento como diseñadora.</p></div>
+        </div>
+      </div>
+
+      <img class="mwelly-img m-reveal" src="image/welly/welly-3.png" alt="Welly — Wireframes &amp; Design System" loading="lazy">
+
+      <div class="mwelly-white m-reveal">
+        <img src="image/welly/welly-4.png" alt="Welly — Filter Screens" loading="lazy" style="max-width:98%;height:auto;display:block">
+      </div>
+
+      <div class="mwelly-white m-reveal">
+        <img src="image/welly/welly-5.png" alt="Welly — Filter Screens Mobile" loading="lazy" style="max-width:98%;height:auto;display:block">
+      </div>
+
+    </div><!-- /mgallery-dl -->
+
+    <!-- ── PROJECT NAV ─────────────────────────────────────────────── -->
+    <div class="proj-nav">
+      <a href="datalog.html" class="pn-item pn-prev">
+        <span class="pn-label" data-k="prev_l">← PROYECTO ANTERIOR</span>
+        <div>
+          <span class="pn-num">— 01</span>
+          <span class="pn-title"> Datalog</span>
+        </div>
+        <span class="pn-sub">Visualización de Datos · Práctica</span>
+      </a>
+      <a href="nodos.html" class="pn-item pn-next">
+        <span class="pn-label" data-k="next_l">PRÓXIMO PROYECTO →</span>
+        <div>
+          <span class="pn-num">— 03</span>
+          <span class="pn-title"> Nodos</span>
+        </div>
+        <span class="pn-sub" data-k="next_sub">App Móvil · UX/UI · Máster</span>
+      </a>
+    </div>
+
+  </div><!-- /dl-wrap -->
+</div><!-- /page -->
+
+<footer>
+  <span class="ft">✸ Carolina Ferreyra — 2026</span>
+  <span class="ft">Diseñado con ✦</span>
+</footer>
+
+<script>
+// ── TRANSLATIONS ──────────────────────────────────────────────────────────
+const T = {
+  es: {
+    nav_works: 'Trabajos', nav_about: 'Sobre mí', nav_contact: 'Contacto',
+    eyebrow: '— 02 · E-COMMERCE · MÁSTER ELISAVA',
+    head_desc: 'Rediseño de la funcionalidad de filtros para Welly, una plataforma e-commerce especializada en vendas corporales. La nueva función permite encontrar fácilmente el producto correcto según talla, cantidad y necesidades específicas — especialmente útil para usuarios nuevos que no conocen la variedad de productos.',
+    tag_filters: 'Filtros &amp; Búsqueda',
+    role_l: 'ROL', ctx_l: 'CONTEXTO', tools_l: 'HERRAMIENTAS',
+    ctx_v: 'Proyecto de Máster — ELISAVA',
+    overview: 'Welly es una plataforma e-commerce especializada en vendas corporales con una amplia variedad de productos. El reto: los usuarios nuevos no sabían cómo elegir el producto correcto. Se rediseñó la experiencia de filtros para guiar por talla, zona corporal, cantidad y tipo de uso — reduciendo la fricción y mejorando la conversión.',
+    c1t: 'Contexto',
+    c1b: '<p>Welly es una plataforma de e-commerce especializada en vendas corporales diseñadas para distintas partes del cuerpo. En este proyecto mejoramos la experiencia de usuario introduciendo una nueva funcionalidad de filtros, que permite encontrar fácilmente el producto correcto según talla, cantidad y necesidades específicas.</p>',
+    c2t: 'Sobre la marca',
+    c2b: '<p>Welly se especializa en crear vendas diseñadas para distintas zonas del cuerpo. Sus productos no solo ofrecen protección, sino también un toque divertido a la experiencia. Con colores vibrantes y estampados alegres, están pensadas para que puedas llevar tus heridas con orgullo.</p>',
+    c3t: 'Solución',
+    c3b: '<p>Proponemos implementar filtros que permitan una búsqueda más personalizada y controlada. Estos filtros clasifican las vendas para facilitar la comparación entre opciones — especialmente útil para nuevos usuarios que no conocen la variedad de productos Welly.</p>',
+    c4t: 'Baja fidelidad',
+    c4b: '<p>Este wireframe de baja fidelidad ilustra el flujo de usuario en la plataforma Welly, desde la selección del producto hasta el proceso de compra.</p><p>Se enfoca en estructura, layout y usabilidad antes de avanzar a diseños de alta fidelidad.</p><p><strong style="color:var(--text)">Flujo de usuario:</strong> Muestra cómo navegan las categorías, aplican filtros y llegan al checkout.</p><p><strong style="color:var(--text)">Retroalimentación e iteración:</strong> Las anotaciones señalan áreas de mejora detectadas en las pruebas tempranas.</p><p><strong style="color:var(--text)">Próximos pasos:</strong> Estos insights guiarán las iteraciones hacia prototipos de alta fidelidad más intuitivos.</p>',
+    c5t: 'Sistema de Diseño',
+    c5b: '<p>El sistema de diseño de Welly promueve consistencia y escalabilidad integrando colores, tipografía, grillas e iconos para una experiencia visual unificada.</p><p>— Migración de marca: evaluamos el sitio actual y transferimos los elementos de branding a Figma.</p><p>— Creación de componentes: desarrollamos botones, dropdowns e inputs desde cero en una librería reutilizable.</p><p>— Estructura en grilla: layout responsivo adaptable a distintos dispositivos.</p><p>— Documentación: todos los componentes están documentados en Figma para facilitar la colaboración.</p>',
+    c6t: 'Aprendizajes',
+    c6b: '<p>Visualización del diseño: mejoré en representar y comunicar conceptos con claridad.</p><p>Resolución de problemas: desarrollé habilidades al enfrentar y resolver fallos de interacción.</p><p>Comunicación con el equipo: garanticé la comprensión del diseño para una implementación exitosa.</p><p>Consistencia: agregué nuevas funciones manteniendo colores y acciones coherentes.</p><p>Simplificación del flujo: hice la navegación más intuitiva en distintos productos.</p><p>Uso de Figma — Variables, Librerías. Estas experiencias enriquecieron mi crecimiento como diseñadora.</p>',
+    prev_l: '← PROYECTO ANTERIOR', next_l: 'PRÓXIMO PROYECTO →',
+    next_sub: 'App Móvil · UX/UI · Máster'
+  },
+  en: {
+    nav_works: 'Works', nav_about: 'About', nav_contact: 'Contact',
+    eyebrow: '— 02 · E-COMMERCE · MASTER ELISAVA',
+    head_desc: "Redesign of the filter feature for Welly, an e-commerce platform specializing in body-specific bandages. The new feature enables customers to easily find the right product based on size, quantity, and specific needs — particularly beneficial for new customers unfamiliar with the product range.",
+    tag_filters: 'Filters &amp; Search',
+    role_l: 'ROLE', ctx_l: 'CONTEXT', tools_l: 'TOOLS',
+    ctx_v: "Master's Project — ELISAVA",
+    overview: "Welly is an e-commerce platform specializing in body-specific bandages with a wide variety of products. The challenge: new users didn't know how to choose the right product. The filter experience was redesigned to guide by size, body area, quantity and type of use — reducing friction and improving conversion.",
+    c1t: 'Context',
+    c1b: '<p>Welly is an e-commerce platform focused on providing fun and functional bandages designed for different parts of the body. In this project, we aimed to improve the user experience by introducing a new filtering feature, allowing customers to easily find the right product based on size, quantity, and specific needs.</p>',
+    c2t: 'About the brand',
+    c2b: '<p>Welly specializes in creating bandages specifically designed to fit different areas of the body. Their products not only provide protection but also add a touch of fun to the experience. With bright colors and cheerful patterns, these bandages are designed to help you wear your wounds with pride.</p>',
+    c3t: 'Solution',
+    c3b: '<p>We propose implementing filters that allow for a more personalized and controlled search by the user. These filters will help classify the bandages, making it easy for users to compare different options. This will be beneficial for new users who are not familiar with the variety of Welly products.</p>',
+    c4t: 'Low-fidelity',
+    c4b: '<p>This low-fidelity wireframe illustrates the user journey for the Welly platform, showcasing the flow from product selection to checkout.</p><p>It emphasizes key interactions and decisions at each step. By simplifying this journey, we concentrated on the structure, layout, and usability before advancing to high-fidelity designs.</p><p><strong style="color:var(--text)">User flow:</strong> The map shows how users navigate product categories, apply filters, and reach checkout.</p><p><strong style="color:var(--text)">Feedback and iteration:</strong> Annotations highlight areas for improvement identified through early user testing.</p><p><strong style="color:var(--text)">Next steps:</strong> These insights will guide future iterations, aiming for a more seamless and intuitive user experience in the high-fidelity prototypes.</p>',
+    c5t: 'Design System',
+    c5b: '<p>The Welly design system promotes consistency and scalability on the web platform by integrating colors, typography, grids, and icons for a unified visual experience.</p><p>— Brand migration: We assessed the current website and transferred branding elements to Figma, designing new features that align with the existing brand.</p><p>— Component creation: We developed UI elements such as buttons, dropdowns, and input fields from scratch, organizing them into a reusable library.</p><p>— Grid-based structure: The system employs a grid layout for responsive design, ensuring adaptability across devices.</p><p>— Documentation: All components are documented in Figma, facilitating collaboration and updates.</p>',
+    c6t: 'What I learned',
+    c6b: '<p>Effective design visualization: I improved in representing and communicating design concepts clearly.</p><p>Problem-solving: I developed skills by facing and solving interaction failures.</p><p>Communication with the production team: I ensured a clear understanding of the design for successful implementation.</p><p>Consistency in design: I added new features while keeping colors and actions consistent for an integrated user experience.</p><p>Simplifying the user journey: I made navigation more intuitive and user-friendly across various products.</p><p>Using Figma — Variables, Libraries. These experiences enriched my growth as a designer and improved my ability to create user-centered solutions.</p>',
+    prev_l: '← PREVIOUS PROJECT', next_l: 'NEXT PROJECT →',
+    next_sub: "Mobile App · UX/UI · Master's"
+  }
+};
+
+// ── THEME ──────────────────────────────────────────────────────────────────
+let theme = localStorage.getItem('theme') || 'dark';
+(function(){
+  if(theme === 'light'){
+    document.getElementById('ico-dark').style.display = 'none';
+    document.getElementById('ico-light').style.display = '';
+  }
+})();
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', theme);
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('ico-dark').style.display  = theme === 'dark'  ? '' : 'none';
+  document.getElementById('ico-light').style.display = theme === 'light' ? '' : 'none';
+}
+
+// ── LANG ───────────────────────────────────────────────────────────────────
+let lang = localStorage.getItem('lang') || 'es';
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('lang', l);
+  document.documentElement.lang = l;
+  document.getElementById('btn-es').className = l === 'es' ? 'nl-active' : 'nl-inactive';
+  document.getElementById('btn-en').className = l === 'en' ? 'nl-active' : 'nl-inactive';
+  document.querySelectorAll('[data-k]').forEach(el => {
+    const k = el.dataset.k;
+    if (T[l][k] !== undefined) el.innerHTML = T[l][k];
+  });
+}
+// Init lang on load
+(function(){
+  setLang(lang);
+})();
+
+// ── CURSOR ────────────────────────────────────────────────────────────────
+(function initCursor() {
+  const dot  = document.getElementById('cursor-glass');
+  const ring = document.getElementById('cursor-ring');
+  let mx = innerWidth / 2, my = innerHeight / 2;
+  let dx = mx, dy = my, rx = mx, ry = my;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  (function loop() {
+    dx += (mx - dx) * .24; dy += (my - dy) * .24;
+    rx += (mx - rx) * .13; ry += (my - ry) * .13;
+    dot.style.left  = dx + 'px'; dot.style.top  = dy + 'px';
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  })();
+
+  const SEL = 'a,button,.mcase-card,.nav-logo,.nav-icon,.pn-item,[onclick]';
+  function on()  { ring.classList.add('on');    document.body.classList.add('cactive'); }
+  function off() { ring.classList.remove('on'); document.body.classList.remove('cactive'); }
+  function bind(el) {
+    if (el._cb) return; el._cb = true;
+    el.addEventListener('mouseenter', on);
+    el.addEventListener('mouseleave', off);
+  }
+  document.querySelectorAll(SEL).forEach(bind);
+  new MutationObserver(ms => {
+    ms.forEach(m => m.addedNodes.forEach(n => {
+      if (!(n instanceof Element)) return;
+      if (n.matches && n.matches(SEL)) bind(n);
+      n.querySelectorAll && n.querySelectorAll(SEL).forEach(bind);
+    }));
+  }).observe(document.body, { childList: true, subtree: true });
+})();
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────────
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('vis'); revObs.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.rev, .m-reveal').forEach(el => revObs.observe(el));
+
+// ── PAGE TRANSITIONS ──────────────────────────────────────────────────────
+(function initPageTransitions(){
+  document.body.classList.add('loaded');
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('mailto') || href.startsWith('http') || a.target === '_blank') return;
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      document.body.classList.remove('loaded');
+      document.body.classList.add('leaving');
+      setTimeout(() => { window.location.href = href; }, 260);
+    });
+  });
+})();
+</script>
+</body>
+</html>

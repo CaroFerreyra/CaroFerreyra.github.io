@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -:*)",
+      "Bash(tail -5 grep -n \"</script>\\\\|</body>\\\\|</html>\" /Users/carolina/Desktop/portfolio-caro/welly.html)",
+      "Bash(tail -5 grep -n \"</script>\\\\|</body>\\\\|</html>\" /Users/carolina/Desktop/portfolio-caro/nodos.html)",
+      "Bash(ls -lh /Users/carolina/Desktop/portfolio-caro/*.html)",
+      "Bash(ls /Users/carolina/Desktop/portfolio-caro/*.html)"
+    ]
+  }
+}

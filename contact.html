@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contacto — Carolina Ferreyra</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ───────────────────────────────────────────────────────────── */
+:root {
+  --bg:      #080808;
+  --surface: #111111;
+  --bg3:     #1a1a1a;
+  --text:    #f9f9f9;
+  --muted:   #aeaeae;
+  --accent:  #c8ff4c;
+  --border:  rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.18);
+}
+[data-theme="light"] {
+  --bg:      #f0efe9;
+  --surface: #e4e3dd;
+  --bg3:     #d8d7d1;
+  --text:    #0a0a0a;
+  --muted:   #525252;
+  --accent:  #2d6000;
+  --border:  rgba(0,0,0,0.10);
+  --border2: rgba(0,0,0,0.22);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0 }
+html { scroll-behavior: smooth }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  cursor: none;
+  overflow-x: hidden;
+  opacity: 0;
+  transition: background .4s, color .4s, opacity .35s ease;
+  padding-top: 72px;
+}
+body.loaded { opacity: 1 }
+body.leaving { opacity: 0; transition: opacity .25s ease }
+@media(hover:none),(pointer:coarse) { body,button,a { cursor: auto } }
+a   { color: inherit; text-decoration: none }
+img { max-width: 100%; display: block }
+button { background: none; border: none; cursor: none; font-family: inherit; color: inherit }
+
+/* ── CURSOR ──────────────────────────────────────────────────────────── */
+#cursor-glass {
+  position: fixed; width: 10px; height: 10px; border-radius: 50%;
+  pointer-events: none; z-index: 9999; transform: translate(-50%,-50%);
+  background: #fff; mix-blend-mode: difference;
+  transition: opacity .15s, transform .15s;
+}
+body.cactive #cursor-glass { opacity: 0; transform: translate(-50%,-50%) scale(0) }
+#cursor-ring {
+  position: fixed; width: 12px; height: 12px; border-radius: 50%;
+  pointer-events: none; z-index: 9997; transform: translate(-50%,-50%);
+  border: 1.5px solid rgba(255,255,255,0.28);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06),
+              0 8px 32px rgba(0,0,0,0.35),
+              inset 0 1px 0 rgba(255,255,255,0.12);
+  backdrop-filter: contrast(1.1) brightness(1.04) saturate(1.15);
+  -webkit-backdrop-filter: contrast(1.1) brightness(1.04) saturate(1.15);
+  opacity: 0;
+  transition: width .24s cubic-bezier(.25,.46,.45,.94),
+              height .24s cubic-bezier(.25,.46,.45,.94),
+              opacity .2s;
+  will-change: left, top;
+}
+#cursor-ring.on { width: 80px; height: 80px; opacity: 1 }
+[data-theme="light"] #cursor-ring { border-color: rgba(0,0,0,0.18); box-shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.10) }
+
+/* ── NAVBAR ───────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 72px; padding: 0 48px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--surface);
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background .4s, border-color .4s;
+}
+.nav-logo {
+  font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  flex-shrink: 0; transition: color .2s;
+}
+.nav-logo:hover { color: var(--accent) }
+.nav-center {
+  flex: 1; display: flex; justify-content: center; align-items: center; gap: 36px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); transition: color .2s; white-space: nowrap;
+}
+.nav-link:hover { color: var(--text) }
+.nav-link[aria-current="page"] { color: var(--text) }
+.nav-link[aria-current="page"] .nav-num { opacity: 1 }
+.nav-num { color: var(--accent); font-size: 10px }
+.nav-right { display: flex; align-items: center; gap: 24px; flex-shrink: 0 }
+.nav-cv {
+  padding: 7px 15px; border-radius: 20px;
+  border: 1px solid var(--border);
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); transition: color .25s, border-color .25s;
+}
+.nav-cv:hover { border-color: var(--accent); color: var(--accent) }
+.nav-lang {
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .1em;
+}
+.nav-lang .nl-active   { color: var(--text) }
+.nav-lang .nl-sep      { color: var(--surface) }
+.nav-lang .nl-inactive { color: var(--muted); cursor: none; transition: color .2s }
+.nav-lang .nl-inactive:hover { color: var(--text) }
+.nav-icon {
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 50%;
+  color: var(--muted); transition: color .25s, border-color .25s; cursor: none;
+}
+.nav-icon:hover { border-color: var(--accent); color: var(--accent) }
+
+/* ── PAGE WRAPPER ────────────────────────────────────────────────────── */
+.page { position: relative; overflow: hidden; min-height: calc(100vh - 72px); display: flex; flex-direction: column }
+
+/* Glow blob */
+.glow {
+  position: absolute; pointer-events: none; z-index: 0;
+  width: 414px; height: 427px;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  background: #d9d9d9; filter: blur(400px); border-radius: 50%;
+}
+
+/* ── CONTACT CONTENT ─────────────────────────────────────────────────── */
+.contact-wrap {
+  position: relative; z-index: 1;
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px 48px 100px;
+  text-align: center;
+}
+.ceye {
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 20px;
+}
+.ch2 {
+  font-size: clamp(38px, 6.5vw, 78px); font-weight: 700;
+  letter-spacing: -.03em; text-transform: uppercase;
+  line-height: 1; margin-bottom: 36px;
+}
+.cemail {
+  font-size: clamp(14px, 2vw, 20px); font-weight: 500;
+  color: var(--muted); border-bottom: 1px solid var(--border);
+  padding-bottom: 3px; transition: color .2s, border-color .2s; cursor: none;
+}
+.cemail:hover { color: var(--accent); border-color: var(--accent) }
+.clinks {
+  display: flex; gap: 14px; margin-top: 44px;
+  flex-wrap: wrap; justify-content: center;
+}
+.clink {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); padding: 10px 22px;
+  border: 1px solid var(--border); border-radius: 40px;
+  transition: color .2s, border-color .2s, background .2s; cursor: none;
+}
+.clink:hover { border-color: var(--accent); color: var(--accent) }
+
+/* ── FOOTER ───────────────────────────────────────────────────────────── */
+footer {
+  padding: 28px 48px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ft { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .08em; color: var(--muted) }
+
+/* ── SCROLL REVEAL ────────────────────────────────────────────────────── */
+.rev { opacity: 0; transform: translateY(32px); transition: opacity .75s cubic-bezier(.22,1,.36,1), transform .75s cubic-bezier(.22,1,.36,1) }
+.rev.vis { opacity: 1; transform: translateY(0) }
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────────── */
+@media(max-width:960px) {
+  nav { padding: 0 24px }
+  .nav-center { display: none }
+  .contact-wrap { padding: 60px 24px 80px }
+}
+@media(max-width:600px) {
+  .clinks { flex-direction: column; align-items: center }
+  footer { flex-direction: column; gap: 12px; text-align: center }
+  .ch2 { font-size: clamp(36px, 12vw, 64px) }
+  .cemail { font-size: clamp(13px, 3.5vw, 20px) }
+  .glow { width: 280px; height: 280px }
+}
+</style>
+<script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t)})();</script>
+</head>
+<body>
+
+<div id="cursor-glass" aria-hidden="true"></div>
+<div id="cursor-ring" aria-hidden="true"></div>
+
+<!-- ── NAVBAR ─────────────────────────────────────────────────────────────── -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo">CF ✦</a>
+
+  <div class="nav-center">
+    <a href="index.html#works"  class="nav-link"><span class="nav-num">00</span> <span data-k="nav_works">Trabajos</span></a>
+    <a href="index.html#about"  class="nav-link"><span class="nav-num">01</span> <span data-k="nav_about">Sobre mí</span></a>
+    <a href="contact.html"      class="nav-link" aria-current="page"><span class="nav-num">02</span> <span data-k="nav_contact">Contacto</span></a>
+  </div>
+
+  <div class="nav-right">
+    <a href="https://carolina-ferreyra.notion.site/Carolina-Ferreyra-04e3e8ecbef94b14a1a25b7388e45011"
+       target="_blank" rel="noopener noreferrer" class="nav-cv" aria-label="Ver CV de Carolina Ferreyra (abre en nueva pestaña)">CV ↗</a>
+
+    <div class="nav-lang" role="group" aria-label="Seleccionar idioma">
+      <span id="btn-es" class="nl-active"   onclick="setLang('es')" role="button" tabindex="0" aria-pressed="true"  aria-label="Español">ES</span>
+      <span class="nl-sep">/</span>
+      <span id="btn-en" class="nl-inactive" onclick="setLang('en')" role="button" tabindex="0" aria-pressed="false" aria-label="English">EN</span>
+    </div>
+
+    <a href="https://www.linkedin.com/in/carolina-ferreyra/" target="_blank" rel="noopener noreferrer"
+       class="nav-icon" aria-label="LinkedIn de Carolina Ferreyra (abre en nueva pestaña)">
+      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+      </svg>
+    </a>
+
+    <button class="nav-icon" onclick="toggleTheme()" aria-label="Cambiar a modo claro" id="theme-toggle">
+      <svg id="ico-dark" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+      <svg id="ico-light" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ── PAGE ───────────────────────────────────────────────────────────────── -->
+<div class="page">
+  <div class="glow" aria-hidden="true"></div>
+
+  <main id="main-content" class="contact-wrap">
+    <div class="rev">
+      <p class="ceye" data-k="c_eye">✦ Hablemos ✦</p>
+      <h1 class="ch2" data-k="c_h">Trabajemos<br>Juntos</h1>
+      <a href="mailto:caritos17@gmail.com" class="cemail" aria-label="Enviar email a caritos17@gmail.com">caritos17@gmail.com</a>
+      <div class="clinks">
+        <a href="https://www.linkedin.com/in/carolina-ferreyra/" target="_blank" rel="noopener noreferrer" class="clink" aria-label="Ver perfil de LinkedIn de Carolina Ferreyra (abre en nueva pestaña)">
+          <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+        <a href="https://carolina-ferreyra.notion.site/Carolina-Ferreyra-04e3e8ecbef94b14a1a25b7388e45011" target="_blank" rel="noopener noreferrer" class="clink" aria-label="Ver CV de Carolina Ferreyra en Notion (abre en nueva pestaña)">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span data-k="c_cv">Ver CV</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer role="contentinfo">
+  <span class="ft"><span aria-hidden="true">✸ </span>Carolina Ferreyra — 2026</span>
+  <span class="ft" data-k="f_made">Diseñado con <span aria-hidden="true">✦</span></span>
+</footer>
+
+<script>
+// ── THEME ──────────────────────────────────────────────────────────────
+let theme = localStorage.getItem('theme') || 'dark';
+(function(){
+  if(theme==='light'){
+    document.getElementById('ico-dark').style.display='none';
+    document.getElementById('ico-light').style.display='';
+  }
+  const label = theme==='dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+  const tt = document.getElementById('theme-toggle');
+  if (tt) tt.setAttribute('aria-label', label);
+})();
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', theme);
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('ico-dark').style.display  = theme === 'dark'  ? '' : 'none';
+  document.getElementById('ico-light').style.display = theme === 'light' ? '' : 'none';
+  const label = theme==='dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+  const tt = document.getElementById('theme-toggle');
+  if (tt) tt.setAttribute('aria-label', label);
+}
+
+// ── LANG ───────────────────────────────────────────────────────────────
+const T = {
+  es:{
+    nav_works:'Trabajos', nav_about:'Sobre mí', nav_contact:'Contacto',
+    c_eye:'✦ Hablemos ✦', c_h:'Trabajemos<br>Juntos', c_cv:'Ver CV',
+    f_made:'Diseñado con ✦'
+  },
+  en:{
+    nav_works:'Works', nav_about:'About', nav_contact:'Contact',
+    c_eye:"✦ Let's talk ✦", c_h:"Let's Work<br>Together", c_cv:'View CV',
+    f_made:'Designed with ✦'
+  }
+};
+
+function setLang(l) {
+  localStorage.setItem('lang', l);
+  document.documentElement.lang = l;
+  document.getElementById('btn-es').className = l === 'es' ? 'nl-active' : 'nl-inactive';
+  document.getElementById('btn-en').className = l === 'en' ? 'nl-active' : 'nl-inactive';
+  document.getElementById('btn-es').setAttribute('aria-pressed', l === 'es' ? 'true' : 'false');
+  document.getElementById('btn-en').setAttribute('aria-pressed', l === 'en' ? 'true' : 'false');
+  document.querySelectorAll('[data-k]').forEach(el => {
+    const k = el.dataset.k;
+    if (T[l][k] !== undefined) el.innerHTML = T[l][k];
+  });
+}
+
+// ── CURSOR ─────────────────────────────────────────────────────────────
+(function initCursor() {
+  const dot  = document.getElementById('cursor-glass');
+  const ring = document.getElementById('cursor-ring');
+  let mx = innerWidth / 2, my = innerHeight / 2;
+  let dx = mx, dy = my, rx = mx, ry = my;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function loop() {
+    dx += (mx - dx) * .24; dy += (my - dy) * .24;
+    rx += (mx - rx) * .13; ry += (my - ry) * .13;
+    dot.style.left  = dx + 'px'; dot.style.top  = dy + 'px';
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  })();
+  const SEL = 'a,button,.clink,.nav-icon,[onclick]';
+  function on()  { ring.classList.add('on');    document.body.classList.add('cactive'); }
+  function off() { ring.classList.remove('on'); document.body.classList.remove('cactive'); }
+  function bind(el) {
+    if (el._cb) return; el._cb = true;
+    el.addEventListener('mouseenter', on);
+    el.addEventListener('mouseleave', off);
+  }
+  document.querySelectorAll(SEL).forEach(bind);
+  new MutationObserver(ms => {
+    ms.forEach(m => m.addedNodes.forEach(n => {
+      if (!(n instanceof Element)) return;
+      if (n.matches && n.matches(SEL)) bind(n);
+      n.querySelectorAll && n.querySelectorAll(SEL).forEach(bind);
+    }));
+  }).observe(document.body, { childList: true, subtree: true });
+})();
+
+// ── SCROLL REVEAL ──────────────────────────────────────────────────────
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('vis'); revObs.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.rev').forEach(el => revObs.observe(el));
+
+// ── INIT ───────────────────────────────────────────────────────────────
+setLang(localStorage.getItem('lang') || 'es');
+
+// ── PAGE TRANSITIONS ───────────────────────────────────────────────────
+(function initPageTransitions(){
+  document.body.classList.add('loaded');
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('mailto') || href.startsWith('http') || a.target === '_blank') return;
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      document.body.classList.remove('loaded');
+      document.body.classList.add('leaving');
+      setTimeout(() => { window.location.href = href; }, 260);
+    });
+  });
+})();
+</script>
+</body>
+</html>

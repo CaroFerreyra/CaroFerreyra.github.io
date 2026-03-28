@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datalog — Carolina Ferreyra</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS — idénticos a portfolio.html ──────────────────────────────── */
+:root {
+  --bg:      #080808;
+  --surface: #111111;
+  --bg3:     #1a1a1a;
+  --text:    #f9f9f9;
+  --muted:   #aeaeae;
+  --accent:  #c8ff4c;
+  --border:  rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.18);
+}
+[data-theme="light"] {
+  --bg:      #f0efe9;
+  --surface: #e4e3dd;
+  --bg3:     #d8d7d1;
+  --text:    #0a0a0a;
+  --muted:   #525252;   /* 6.5:1 sobre todas las superficies light ✓ */
+  --accent:  #2d6000;
+  --border:  rgba(0,0,0,0.10);
+  --border2: rgba(0,0,0,0.22);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0 }
+html { scroll-behavior: smooth }
+/* FOCUS — WCAG 2.4.7 */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  cursor: none;
+  overflow-x: hidden;
+  opacity: 0;
+  transition: background .4s, color .4s, opacity .35s ease;
+  padding-top: 72px;
+}
+body.loaded{opacity:1}
+body.leaving{opacity:0;transition:opacity .25s ease}
+a   { color: inherit; text-decoration: none }
+img { max-width: 100%; display: block }
+button { background: none; border: none; cursor: none; font-family: inherit; color: inherit }
+
+/* ── CURSOR — idéntico a portfolio.html ───────────────────────────────── */
+#cursor-glass {
+  position: fixed; width: 10px; height: 10px; border-radius: 50%;
+  pointer-events: none; z-index: 9999; transform: translate(-50%,-50%);
+  background: #fff; mix-blend-mode: difference;
+  transition: opacity .15s, transform .15s;
+}
+body.cactive #cursor-glass { opacity: 0; transform: translate(-50%,-50%) scale(0) }
+
+#cursor-ring {
+  position: fixed; width: 12px; height: 12px; border-radius: 50%;
+  pointer-events: none; z-index: 9997; transform: translate(-50%,-50%);
+  border: 1.5px solid rgba(255,255,255,0.28);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06),
+              0 8px 32px rgba(0,0,0,0.35),
+              inset 0 1px 0 rgba(255,255,255,0.12);
+  backdrop-filter: contrast(1.1) brightness(1.04) saturate(1.15);
+  -webkit-backdrop-filter: contrast(1.1) brightness(1.04) saturate(1.15);
+  opacity: 0;
+  transition: width .24s cubic-bezier(.25,.46,.45,.94),
+              height .24s cubic-bezier(.25,.46,.45,.94),
+              opacity .2s;
+  will-change: left, top;
+}
+#cursor-ring.on { width: 80px; height: 80px; opacity: 1 }
+[data-theme="light"] #cursor-ring { border-color: rgba(0,0,0,0.18); box-shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.10) }
+
+/* ── NAVBAR (Figma node 5:69) — h:72px, bg:#111, px:48px ─────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 72px; padding: 0 48px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--surface);
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background .4s, border-color .4s;
+}
+/* Logo — bold 13px monospace */
+.nav-logo {
+  font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  flex-shrink: 0; transition: color .2s;
+}
+.nav-logo:hover { color: var(--accent) }
+/* Center links — flex-1, justify-center, gap-36 */
+.nav-center {
+  flex: 1; display: flex; justify-content: center; align-items: center; gap: 36px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); transition: color .2s; white-space: nowrap;
+}
+.nav-link:hover { color: var(--text) }
+.nav-num { color: var(--accent); font-size: 10px }
+/* Right group — gap-24 */
+.nav-right { display: flex; align-items: center; gap: 24px; flex-shrink: 0 }
+/* CV pill — border #111, rounded-20 */
+.nav-cv {
+  padding: 7px 15px; border-radius: 20px;
+  border: 1px solid var(--border);
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); transition: color .25s, border-color .25s;
+}
+.nav-cv:hover { border-color: var(--accent); color: var(--accent) }
+/* ES / EN — plain text, gap-4 */
+.nav-lang {
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .1em;
+}
+.nav-lang .nl-active   { color: var(--text) }
+.nav-lang .nl-sep      { color: var(--surface) }
+.nav-lang .nl-inactive { color: var(--muted); cursor: none; transition: color .2s }
+.nav-lang .nl-inactive:hover { color: var(--text) }
+/* Icon circle — 34x34, border */
+.nav-icon {
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 50%;
+  color: var(--muted); transition: color .25s, border-color .25s; cursor: none;
+}
+.nav-icon:hover { border-color: var(--accent); color: var(--accent) }
+
+
+/* ── PAGE WRAPPER ────────────────────────────────────────────────────── */
+.page { position: relative; overflow: hidden }
+
+/* Glow blob (Figma node 23:2035) — absolute, #d9d9d9, blur 400px, 414×427, left 513, top 718.7 */
+.glow {
+  position: absolute; pointer-events: none; z-index: 0;
+  width: 414px; height: 427px;
+  left: 513px; top: 718.7px;
+  background: #d9d9d9; filter: blur(400px); border-radius: 50%;
+}
+
+/* ── MAIN CONTENT — mismo top gap que modales portfolio (80px desde nav) ── */
+.dl-wrap {
+  position: relative; z-index: 1;
+  padding: 80px 140px 100px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 56px;
+}
+
+/* ── HEADER BLOCK (Figma node 1:123) ─────────────────────────────────── */
+.dl-head {
+  width: 100%;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 12px;
+}
+/* Eyebrow (node 1:124) — shrink-0 centered, accent 11px mono */
+.dl-eyebrow {
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  letter-spacing: .15em; text-transform: uppercase;
+  color: var(--accent); white-space: nowrap;
+}
+/* Title (node 1:125) — min-w-full (full width), 88px bold */
+.dl-title {
+  width: 100%;
+  font-size: 88px; font-weight: 700;
+  letter-spacing: -.02em; text-transform: uppercase; line-height: .92;
+  color: var(--text);
+}
+/* Description (node 1:126) — min-w-full, 16px muted */
+.dl-desc {
+  width: 100%;
+  font-size: 16px; line-height: 1.6; color: var(--muted);
+}
+/* Tags row (node 1:127) — flex-wrap justify-center gap-7 pt-8 */
+.dl-tags {
+  display: flex; flex-wrap: wrap;
+  justify-content: center; align-items: center;
+  gap: 7px; padding-top: 8px;
+}
+/* Each tag — border2 for sufficient contrast on all surfaces */
+.dl-tag {
+  padding: 5px 13px; border-radius: 20px;
+  border: 1px solid var(--border2);
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted);
+}
+/* Meta row (node 1:138) — flex gap-48 items-center justify-center pt-20 */
+.dl-meta {
+  display: flex; flex-wrap: wrap;
+  justify-content: center; align-items: center;
+  gap: 48px; padding-top: 20px;
+}
+.dl-mi { display: flex; flex-direction: column; align-items: center; gap: 4px }
+.dl-ml {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .15em; text-transform: uppercase; color: var(--muted);
+}
+.dl-mv { font-size: 14px; font-weight: 500; color: var(--text) }
+
+/* ── OVERVIEW BLOCK (Figma node 1:148) ───────────────────────────────── */
+/* flex-col items-center gap-16, w-full */
+.dl-overview {
+  width: 100%;
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 16px;
+}
+/* Label — centered, accent 10px mono */
+.dl-ov-label {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .15em; text-transform: uppercase;
+  color: var(--accent); white-space: nowrap;
+}
+/* Text — min-w-full (full width), 17px */
+.dl-ov-text {
+  width: 100%;
+  font-size: 17px; line-height: 1.75; color: var(--text);
+}
+
+/* ── GALLERY (Figma node 1:151) — flex-col items-center w-full gap-24 ── */
+.dl-gallery {
+  width: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 24px;
+}
+
+/* ── IMAGE 1 — SVG, sin recorte ───────────────────────────────────────── */
+.img1-wrap {
+  width: 100%; max-width: 1160px; flex-shrink: 0;
+}
+.img1-wrap img {
+  width: 100%; height: auto; display: block;
+}
+
+/* ── CARDS ROW (Figma node 6:229) — flex gap-16 items-start w-full ────── */
+.dl-cards {
+  width: 100%;
+  display: flex; align-items: stretch; gap: 16px;
+}
+/* Each card (flex:1, bg:#111, p-28, flex-col gap-8 items-center) */
+.dl-card {
+  flex: 1 1 0; padding: 28px;
+  background: var(--surface);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  border-left: 2px solid transparent;
+  transition: background .25s, border-left-color .25s, transform .25s;
+}
+.dl-card:hover { background: var(--bg3); border-left-color: var(--accent); transform: translateY(-2px) }
+/* Card title — w-full, 32px bold accent */
+.dl-card-title {
+  width: 100%;
+  font-size: 32px; font-weight: 700;
+  letter-spacing: -.02em; line-height: 1.1;
+  color: var(--accent);
+}
+/* Card body — color:var(--text) dark 14.8:1 ✓ light 15:1 ✓ */
+.dl-card-body {
+  width: 100%;
+  font-size: 14px; line-height: 1.75; color: var(--text);
+}
+.dl-card-body p { margin-bottom: 1em }
+.dl-card-body p:last-child { margin-bottom: 0 }
+
+
+/* ── IMAGEN FINAL — SVG sin recorte ───────────────────────────────────── */
+.dl-last-img {
+  width: 100%;
+}
+.dl-last-img img {
+  width: 100%; height: auto; display: block;
+}
+
+/* ── PROJECT NAV ──────────────────────────────────────────────────────── */
+.proj-nav {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+  width: 100%; margin-top: 80px;
+}
+.pn-item {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 32px 24px; cursor: none;
+  transition: background .2s;
+}
+.pn-item:hover { background: var(--surface) }
+.pn-item:hover .pn-title { color: var(--accent) }
+.pn-prev { padding-right: 64px; border-right: 1px solid var(--border) }
+.pn-next { padding-left: 64px; text-align: right }
+.pn-label {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+}
+.pn-num  { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: .12em }
+.pn-title{
+  font-size: clamp(22px, 3vw, 36px); font-weight: 700;
+  letter-spacing: -.02em; text-transform: uppercase;
+  line-height: 1; color: var(--text); transition: color .2s;
+}
+.pn-sub  { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .1em; color: var(--muted) }
+.pn-arrow{display:inline-block;transition:transform .25s cubic-bezier(.22,1,.36,1)}
+.pn-prev:hover .pn-arrow{transform:translateX(-5px)}
+.pn-next:hover .pn-arrow{transform:translateX(5px)}
+/* ── FOOTER ───────────────────────────────────────────────────────────── */
+footer {
+  padding: 28px 48px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ft { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .08em; color: var(--muted) }
+
+/* ── SCROLL REVEAL ────────────────────────────────────────────────────── */
+.rev { opacity: 0; transform: translateY(32px); transition: opacity .75s cubic-bezier(.22,1,.36,1), transform .75s cubic-bezier(.22,1,.36,1) }
+.rev.vis { opacity: 1; transform: translateY(0) }
+.rev:nth-child(2){transition-delay:.08s}
+.rev:nth-child(3){transition-delay:.16s}
+.rev:nth-child(4){transition-delay:.24s}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────────── */
+@media(max-width:1300px){
+  .dl-wrap{padding:80px 48px 100px}
+  .img1-wrap{width:100%;height:auto}
+}
+@media(max-width:1050px){
+  .dl-title{font-size:clamp(52px,8vw,88px)}
+  .dl-cards{flex-direction:column}
+}
+@media(max-width:960px){
+  nav{padding:0 24px}
+  .nav-center{display:none}
+  .dl-wrap{padding:48px 24px 80px;gap:40px}
+  .dl-meta{gap:20px;flex-wrap:wrap}
+  .glow{left:50%;transform:translateX(-50%)}
+  .dl-title{font-size:clamp(40px,7vw,72px)}
+  .dl-desc{font-size:15px}
+  .mcase-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .dl-wrap{padding:36px 20px 60px;gap:32px}
+  .dl-meta{gap:14px}
+  .dl-meta-item{min-width:0;flex:1 1 40%}
+  .dl-cards{gap:12px}
+  .pn-prev{padding-right:32px}
+  .pn-next{padding-left:32px}
+  .pn-title{font-size:clamp(18px,5vw,28px)}
+}
+@media(max-width:600px){
+  .dl-title{font-size:clamp(36px,13vw,64px)}
+  .dl-card-title{font-size:18px}
+  .dl-card-body{font-size:13px}
+  .dl-tags{gap:6px}
+  footer{flex-direction:column;gap:12px;text-align:center}
+  .pn-prev{padding:20px 16px 20px 16px;border-right:none;border-bottom:1px solid var(--border)}
+  .pn-next{padding:20px 16px 20px 16px}
+  .proj-nav{flex-direction:column}
+  .pn-title{font-size:clamp(16px,6vw,24px)}
+  .mcase-grid{grid-template-columns:1fr}
+  .glow{width:280px;height:280px}
+}
+</style>
+<script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t)})();</script>
+</head>
+<body>
+
+<div id="cursor-glass"></div>
+<div id="cursor-ring"></div>
+
+<!-- ── NAVBAR (Figma node 5:69) ─────────────────────────────────────────── -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo">CF ✦</a>
+
+  <div class="nav-center">
+    <a href="index.html#works"   class="nav-link"><span class="nav-num">00</span> <span data-k="nav_works">Trabajos</span></a>
+    <a href="index.html#about"   class="nav-link"><span class="nav-num">01</span> <span data-k="nav_about">Sobre mí</span></a>
+    <a href="contact.html" class="nav-link"><span class="nav-num">02</span> <span data-k="nav_contact">Contacto</span></a>
+  </div>
+
+  <div class="nav-right">
+    <a href="https://carolina-ferreyra.notion.site/Carolina-Ferreyra-04e3e8ecbef94b14a1a25b7388e45011"
+       target="_blank" class="nav-cv">CV ↗</a>
+
+    <div class="nav-lang">
+      <span id="btn-es" class="nl-active"   onclick="setLang('es')">ES</span>
+      <span class="nl-sep">/</span>
+      <span id="btn-en" class="nl-inactive" onclick="setLang('en')">EN</span>
+    </div>
+
+    <a href="https://www.linkedin.com/in/carolina-ferreyra/" target="_blank"
+       class="nav-icon" title="LinkedIn">
+      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+      </svg>
+    </a>
+
+    <button class="nav-icon" onclick="toggleTheme()" title="Toggle theme">
+      <svg id="ico-dark" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+      <svg id="ico-light" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ── PAGE ──────────────────────────────────────────────────────────────── -->
+<div class="page">
+  <!-- Glow blob (Figma node 23:2035) -->
+  <div class="glow" aria-hidden="true"></div>
+
+  <!-- Main content column (Figma node 1:122) -->
+  <div class="dl-wrap">
+
+    <!-- ── HEADER (Figma node 1:123) ──────────────────────────────────── -->
+    <div class="dl-head rev">
+      <!-- Eyebrow (node 1:124) — centered -->
+      <p class="dl-eyebrow" data-k="eyebrow">— 01 · PRÁCTICA · PROYECTO PROFESIONAL</p>
+      <!-- Title (node 1:125) — full-width, left-aligned -->
+      <h1 class="dl-title">DATALOG</h1>
+      <!-- Description (node 1:126) — full-width, left-aligned -->
+      <p class="dl-desc" data-k="desc">Dashboard de consumo de servicios públicos — agua, gas y electricidad. Visualización de datos intuitiva con insights personalizados de sostenibilidad para traducir datos complejos en pantallas accesibles.</p>
+      <!-- Tags (node 1:127) — centered row -->
+      <div class="dl-tags">
+        <span class="dl-tag">UX DESIGN</span>
+        <span class="dl-tag">DATA VIZ</span>
+        <span class="dl-tag">DESIGN SYSTEM</span>
+        <span class="dl-tag">DASHBOARDS</span>
+        <span class="dl-tag">FIGMA</span>
+      </div>
+      <!-- Meta (node 1:138) — centered row, gap-48 -->
+      <div class="dl-meta">
+        <div class="dl-mi">
+          <span class="dl-ml" data-k="role_l">ROL</span>
+          <span class="dl-mv" data-k="role_v">UX Designer (Práctica)</span>
+        </div>
+        <div class="dl-mi">
+          <span class="dl-ml" data-k="ctx_l">CONTEXTO</span>
+          <span class="dl-mv" data-k="ctx_v">Proyecto Profesional</span>
+        </div>
+        <div class="dl-mi">
+          <span class="dl-ml" data-k="tools_l">HERRAMIENTAS</span>
+          <span class="dl-mv">Figma</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── OVERVIEW (Figma node 1:148) ────────────────────────────────── -->
+    <div class="dl-overview rev" style="transition-delay:.08s">
+      <!-- Label — centered -->
+      <p class="dl-ov-label">✦ OVERVIEW</p>
+      <!-- Text — full-width, left-aligned -->
+      <p class="dl-ov-text" data-k="overview">Plataforma web para monitorear y optimizar el consumo de servicios públicos — agua, gas y electricidad. El foco del proyecto fue traducir datos complejos en pantallas accesibles para todo tipo de usuarios, desde hogares hasta gestores de edificios.</p>
+    </div>
+
+    <!-- ── GALLERY (Figma node 1:151) ─────────────────────────────────── -->
+    <div class="dl-gallery">
+
+      <!-- Image 1 — SVG sin recorte -->
+      <div class="img1-wrap rev" style="transition-delay:.06s">
+        <img src="image/datalog/1 1.svg"
+             alt="Datalog — Dashboard principal" loading="lazy">
+      </div>
+
+      <!-- Cards row (node 6:229) — 3 columns equal, gap-16 -->
+      <div class="dl-cards">
+        <div class="dl-card rev" style="transition-delay:.04s">
+          <h3 class="dl-card-title" data-k="c1t">Contexto</h3>
+          <div class="dl-card-body" data-k="c1b"><p>Datalog es una plataforma que permite monitorear y optimizar el consumo de servicios públicos — agua, gas y electricidad.</p><p>Al convertir datos complejos en visualizaciones claras, ayuda a tomar decisiones informadas y conservar recursos.</p><p>Ofrece insights personalizados en tiempo real para comparar el consumo con hogares similares y adoptar prácticas más sostenibles.</p></div>
+        </div>
+        <div class="dl-card rev" style="transition-delay:.12s">
+          <h3 class="dl-card-title" data-k="c2t">Desafío</h3>
+          <div class="dl-card-body" data-k="c2b"><p>Datalog busca consolidar todos los datos de consumo en una única plataforma adaptada a cada individuo.</p><p>El desafío fue visualizar información compleja de manera efectiva, personalizando al mismo tiempo las recomendaciones.</p><p>Buscamos formas innovadoras de presentar los datos para que los usuarios recibieran sugerencias según sus patrones únicos de consumo.</p></div>
+        </div>
+        <div class="dl-card rev" style="transition-delay:.20s">
+          <h3 class="dl-card-title" data-k="c3t">Objetivo</h3>
+          <div class="dl-card-body" data-k="c3b"><p>El objetivo principal fue transformar datos complejos en pantallas amigables. Para lograrlo nos enfocamos en:</p><p>— Analizar los datos para proporcionar insights valiosos.</p><p>— Ayudar a comprender el consumo y ofrecer sugerencias para actividades más sostenibles.</p><p>— Diseñar wireframes atractivos, accesibles e intuitivos para todo tipo de usuarios.</p></div>
+        </div>
+      </div>
+
+      <!-- Imagen final — sin recorte -->
+      <div class="dl-last-img rev" style="transition-delay:.1s">
+        <img src="image/datalog/datalog-system.png"
+             alt="Datalog — Design System completo" loading="lazy">
+      </div>
+
+    </div><!-- /dl-gallery -->
+
+    <!-- ── PROJECT NAV ──────────────────────────────────────────────────── -->
+    <div class="proj-nav">
+      <div class="pn-item pn-prev" style="opacity:.35;pointer-events:none" title="Primer proyecto">
+        <span class="pn-label" data-k="prev_l">← PROYECTO ANTERIOR</span>
+        <div><span class="pn-title" style="font-size:14px;color:var(--muted)">—</span></div>
+      </div>
+      <a href="welly.html" class="pn-item pn-next">
+        <span class="pn-label" data-k="next_l">PRÓXIMO PROYECTO →</span>
+        <div>
+          <span class="pn-num">— 02</span>
+          <span class="pn-title"> Welly</span>
+        </div>
+        <span class="pn-sub">E-Commerce · UX/UI · ELISAVA</span>
+      </a>
+    </div>
+
+  </div><!-- /dl-wrap -->
+</div><!-- /page -->
+
+<footer>
+  <span class="ft">✸ Carolina Ferreyra — 2026</span>
+  <span class="ft">Diseñado con ✦</span>
+</footer>
+
+<script>
+// ── THEME ──────────────────────────────────────────────────────────────
+let theme = localStorage.getItem('theme') || 'dark';
+(function(){
+  if(theme==='light'){
+    document.getElementById('ico-dark').style.display='none';
+    document.getElementById('ico-light').style.display='';
+  }
+})();
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', theme);
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('ico-dark').style.display  = theme === 'dark'  ? '' : 'none';
+  document.getElementById('ico-light').style.display = theme === 'light' ? '' : 'none';
+}
+
+// ── LANG ───────────────────────────────────────────────────────────────
+const T = {
+  es:{
+    nav_works:'Trabajos', nav_about:'Sobre mí', nav_contact:'Contacto',
+    eyebrow:'— 01 · PRÁCTICA · PROYECTO PROFESIONAL',
+    desc:'Dashboard de consumo de servicios públicos — agua, gas y electricidad. Visualización de datos intuitiva con insights personalizados de sostenibilidad para traducir datos complejos en pantallas accesibles.',
+    role_l:'ROL', ctx_l:'CONTEXTO', tools_l:'HERRAMIENTAS',
+    role_v:'UX Designer (Práctica)', ctx_v:'Proyecto Profesional',
+    overview:'Plataforma web para monitorear y optimizar el consumo de servicios públicos — agua, gas y electricidad. El foco del proyecto fue traducir datos complejos en pantallas accesibles para todo tipo de usuarios, desde hogares hasta gestores de edificios.',
+    c1t:'Contexto',
+    c1b:'<p>Datalog es una plataforma que permite monitorear y optimizar el consumo de servicios públicos — agua, gas y electricidad.</p><p>Al convertir datos complejos en visualizaciones claras, ayuda a tomar decisiones informadas y conservar recursos.</p><p>Ofrece insights personalizados en tiempo real para comparar el consumo con hogares similares y adoptar prácticas más sostenibles.</p>',
+    c2t:'Desafío',
+    c2b:'<p>Datalog busca consolidar todos los datos de consumo en una única plataforma adaptada a cada individuo.</p><p>El desafío fue visualizar información compleja de manera efectiva, personalizando al mismo tiempo las recomendaciones.</p><p>Buscamos formas innovadoras de presentar los datos para que los usuarios recibieran sugerencias según sus patrones únicos de consumo.</p>',
+    c3t:'Objetivo',
+    c3b:'<p>El objetivo principal fue transformar datos complejos en pantallas amigables. Para lograrlo nos enfocamos en:</p><p>— Analizar los datos para proporcionar insights valiosos.</p><p>— Ayudar a comprender el consumo y ofrecer sugerencias para actividades más sostenibles.</p><p>— Diseñar wireframes atractivos, accesibles e intuitivos para todo tipo de usuarios.</p>',
+    prev_l:'← PROYECTO ANTERIOR', next_l:'PRÓXIMO PROYECTO →'
+  },
+  en:{
+    nav_works:'Works', nav_about:'About', nav_contact:'Contact',
+    eyebrow:'— 01 · INTERNSHIP · PROFESSIONAL PROJECT',
+    desc:'Public utility consumption dashboard — water, gas and electricity. Intuitive data visualization with personalized sustainability insights to translate complex data into accessible screens.',
+    role_l:'ROLE', ctx_l:'CONTEXT', tools_l:'TOOLS',
+    role_v:'UX Designer (Internship)', ctx_v:'Professional Project',
+    overview:'Web platform to monitor and optimize public utility consumption — water, gas and electricity. The project focused on translating complex data into accessible screens for all users, from households to building managers.',
+    c1t:'Context',
+    c1b:'<p>Datalog is a platform that enables users to track and optimize their consumption of public utilities like water, gas, and electricity.</p><p>By converting complex data into clear visuals, Datalog helps users make informed choices, minimize waste, and conserve resources.</p><p>The platform offers tailored insights based on real-time data, allowing users to monitor their usage, compare it with similar households, and embrace more sustainable practices.</p>',
+    c2t:'Challenge',
+    c2b:'<p>Datalog aims to consolidate all public user consumption data onto a single platform tailored for each individual.</p><p>Our challenge was to effectively visualize this intricate user information while also personalizing the recommendations.</p><p>We sought innovative ways to present the data, ensuring that users receive relevant suggestions based on their unique consumption patterns, enhancing their overall experience on the platform.</p>',
+    c3t:'Objective',
+    c3b:"<p>Our project's main goal was to transform complex data into user-friendly screens. To achieve this, we focused on:</p><p>— Analyzing user data to provide valuable insights.</p><p>— Assisting users in understanding their consumption and offering tailored suggestions for eco-friendly activities.</p><p>— Designing appealing, accessible, and intuitive wireframes for all users.</p>",
+    prev_l:'← PREVIOUS PROJECT', next_l:'NEXT PROJECT →'
+  }
+};
+
+function setLang(l) {
+  localStorage.setItem('lang', l);
+  document.documentElement.lang = l;
+  document.getElementById('btn-es').className = l === 'es' ? 'nl-active' : 'nl-inactive';
+  document.getElementById('btn-en').className = l === 'en' ? 'nl-active' : 'nl-inactive';
+  document.querySelectorAll('[data-k]').forEach(el => {
+    const k = el.dataset.k;
+    if (T[l][k] !== undefined) el.innerHTML = T[l][k];
+  });
+}
+
+// ── CURSOR — idéntico a portfolio.html ─────────────────────────────────
+(function initCursor() {
+  const dot  = document.getElementById('cursor-glass');
+  const ring = document.getElementById('cursor-ring');
+  let mx = innerWidth / 2, my = innerHeight / 2;
+  let dx = mx, dy = my, rx = mx, ry = my;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  (function loop() {
+    dx += (mx - dx) * .24; dy += (my - dy) * .24;
+    rx += (mx - rx) * .13; ry += (my - ry) * .13;
+    dot.style.left  = dx + 'px'; dot.style.top  = dy + 'px';
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  })();
+
+  const SEL = 'a,button,.dl-card,.nav-logo,.nav-icon,.pn-item,[onclick]';
+  function on()  { ring.classList.add('on');    document.body.classList.add('cactive'); }
+  function off() { ring.classList.remove('on'); document.body.classList.remove('cactive'); }
+  function bind(el) {
+    if (el._cb) return; el._cb = true;
+    el.addEventListener('mouseenter', on);
+    el.addEventListener('mouseleave', off);
+  }
+  document.querySelectorAll(SEL).forEach(bind);
+  new MutationObserver(ms => {
+    ms.forEach(m => m.addedNodes.forEach(n => {
+      if (!(n instanceof Element)) return;
+      if (n.matches && n.matches(SEL)) bind(n);
+      n.querySelectorAll && n.querySelectorAll(SEL).forEach(bind);
+    }));
+  }).observe(document.body, { childList: true, subtree: true });
+})();
+
+// ── SCROLL REVEAL ──────────────────────────────────────────────────────
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('vis'); revObs.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.rev').forEach(el => revObs.observe(el));
+
+// ── INIT ───────────────────────────────────────────────────────────────
+setLang(localStorage.getItem('lang') || 'es');
+
+// ── PAGE TRANSITIONS ──────────────────────────────────────────────────────
+(function initPageTransitions(){
+  document.body.classList.add('loaded');
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('mailto') || href.startsWith('http') || a.target === '_blank') return;
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      document.body.classList.remove('loaded');
+      document.body.classList.add('leaving');
+      setTimeout(() => { window.location.href = href; }, 260);
+    });
+  });
+})();
+</script>
+</body>
+</html>
