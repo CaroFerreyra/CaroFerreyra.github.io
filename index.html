@@ -256,7 +256,7 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
   <ul class="nav-links">
     <li><a href="#works"><span class="nav-num">00</span> <span data-k="nav_works">Trabajos</span></a></li>
     <li><a href="#about"><span class="nav-num">01</span> <span data-k="nav_about">Sobre mí</span></a></li>
-    <li><a href="contact.html"><span class="nav-num">02</span> <span data-k="nav_contact">Contacto</span></a></li>
+    <li><a href="#contacto"><span class="nav-num">02</span> <span data-k="nav_contact">Contacto</span></a></li>
   </ul>
   <div class="nav-r">
     <a href="https://www.linkedin.com/in/carolina-ferreyra/" target="_blank" rel="noopener noreferrer" class="nav-icon" aria-label="LinkedIn de Carolina Ferreyra (abre en nueva pestaña)">
@@ -355,7 +355,7 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
 </section>
 
 <!-- CONTACT -->
-<section class="wrap" id="contact" aria-labelledby="contact-heading">
+<section class="wrap" id="contacto" aria-labelledby="contact-heading">
   <div class="sec-head rev">
     <span class="sec-n" aria-hidden="true">02</span>
     <h2 class="sec-t" id="contact-heading" data-k="c_title">Contacto</h2>
@@ -590,7 +590,7 @@ document.querySelectorAll('.letter').forEach((el,i) => {
 
 // ── NAVBAR SCROLL + ACTIVE STATE ──────────────────────────────────────────
 function updateNavActive() {
-  const sections = ['works','about'];
+  const sections = ['works','about','contacto'];
   const navLinks = document.querySelectorAll('#nav .nav-links a');
   let current = '';
   sections.forEach(id => {
