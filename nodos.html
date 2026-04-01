@@ -251,6 +251,36 @@ nav {
 /* ── WELLY/NODOS IMAGE STYLE ────────────────────────────────────────── */
 .mwelly-img { display: block; width: 100%; height: auto }
 
+/* ── NODOS IMAGE ANIMATIONS ─────────────────────────────────────────── */
+@keyframes nodos-float {
+  0%,100% { transform: translateY(0) rotate(0deg) }
+  35%     { transform: translateY(-10px) rotate(.3deg) }
+  70%     { transform: translateY(6px) rotate(-.2deg) }
+}
+.nodos-img-outer { width: 100% }
+.nodos-img-wrap {
+  position: relative; border-radius: 20px; overflow: hidden;
+  box-shadow: 0 12px 48px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.3);
+  border: 1px solid var(--border2);
+  will-change: transform; transform-origin: center center;
+  transition: box-shadow .4s ease;
+}
+.nodos-img-wrap::after {
+  content:''; position:absolute; inset:0; border-radius:20px;
+  background: linear-gradient(135deg,rgba(255,255,255,.06) 0%,transparent 60%);
+  pointer-events:none; z-index:1;
+}
+[data-theme="light"] .nodos-img-wrap {
+  box-shadow: 0 12px 48px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.07);
+  border-color: var(--border2);
+}
+.nodos-img-wrap.floating {
+  animation: nodos-float 5s ease-in-out infinite;
+}
+.nodos-img-wrap img { border-radius: 0 }
+/* prevent mgallery hover scale from conflicting */
+.mgallery-dl .nodos-img-wrap img:hover { transform: none; opacity: 1 }
+
 /* ── SCROLL REVEAL ──────────────────────────────────────────────────── */
 .m-reveal { opacity: 0; transform: translateY(28px); transition: opacity .75s cubic-bezier(.22,1,.36,1), transform .75s cubic-bezier(.22,1,.36,1); will-change: transform }
 .m-reveal.vis { opacity: 1; transform: translateY(0) }
@@ -469,7 +499,11 @@ footer {
     <!-- ── GALLERY ─────────────────────────────────────────────────── -->
     <div class="mgallery-dl">
 
-      <img class="mwelly-img m-reveal" src="image/nodos/1 1.svg" alt="Nodos — Vista general" loading="lazy">
+      <div class="nodos-img-outer m-reveal">
+        <div class="nodos-img-wrap">
+          <img class="mwelly-img" src="image/nodos/1 1.svg" alt="Nodos — Vista general" loading="lazy">
+        </div>
+      </div>
 
       <!-- 2-col grid: Contexto, Desafío -->
       <div class="mcase-grid mcase-grid-2col m-reveal">
@@ -483,7 +517,11 @@ footer {
         </div>
       </div>
 
-      <img class="mwelly-img m-reveal" src="image/nodos/82868eba-6459-40d8-a5ac-388021dac985_rw_1200 1.svg" alt="Nodos — Pantallas de la app" loading="lazy">
+      <div class="nodos-img-outer m-reveal">
+        <div class="nodos-img-wrap">
+          <img class="mwelly-img" src="image/nodos/82868eba-6459-40d8-a5ac-388021dac985_rw_1200 1.svg" alt="Nodos — Pantallas de la app" loading="lazy">
+        </div>
+      </div>
 
       <!-- 3-col grid: Investigación, Modelos, Arquitectura -->
       <div class="mcase-grid m-reveal">
@@ -513,7 +551,11 @@ footer {
         </div>
       </div>
 
-      <img class="mwelly-img m-reveal" src="image/nodos/nodos 1.svg" alt="Nodos — App en uso" loading="lazy">
+      <div class="nodos-img-outer m-reveal">
+        <div class="nodos-img-wrap">
+          <img class="mwelly-img" src="image/nodos/nodos 1.svg" alt="Nodos — App en uso" loading="lazy">
+        </div>
+      </div>
 
     </div><!-- /mgallery-dl -->
 
@@ -682,6 +724,41 @@ const revObs = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.06 });
 document.querySelectorAll('.rev, .m-reveal').forEach(el => revObs.observe(el));
+
+// ── NODOS IMAGE ANIMATIONS ────────────────────────────────────────────────
+(function(){
+  // Float: start after scroll reveal completes
+  var floatObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        var wrap = e.target.querySelector('.nodos-img-wrap');
+        if(wrap) setTimeout(function(){ wrap.classList.add('floating'); }, 850);
+        floatObs.unobserve(e.target);
+      }
+    });
+  },{threshold:0.2});
+  document.querySelectorAll('.nodos-img-outer').forEach(function(el){ floatObs.observe(el); });
+
+  // Tilt 3D on hover
+  document.querySelectorAll('.nodos-img-wrap').forEach(function(wrap){
+    wrap.addEventListener('mousemove',function(e){
+      var r=this.getBoundingClientRect();
+      var dx=(e.clientX-r.left-r.width/2)/(r.width/2);
+      var dy=(e.clientY-r.top-r.height/2)/(r.height/2);
+      this.style.animation='none';
+      this.style.transform='perspective(900px) rotateX('+(-dy*5)+'deg) rotateY('+(dx*5)+'deg) scale(1.02)';
+      this.style.transition='transform .12s ease';
+      this.style.boxShadow='0 24px 64px rgba(0,0,0,.6), 0 4px 16px rgba(0,0,0,.4)';
+    });
+    wrap.addEventListener('mouseleave',function(){
+      this.style.transform='';
+      this.style.transition='transform .4s cubic-bezier(.22,1,.36,1)';
+      this.style.boxShadow='';
+      var self=this;
+      setTimeout(function(){ self.style.animation=''; },400);
+    });
+  });
+})();
 
 // ── PAGE TRANSITIONS ──────────────────────────────────────────────────────
 (function initPageTransitions(){
