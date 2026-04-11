@@ -2,503 +2,497 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Nodos — Mockup</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{
   min-height:100vh;
-  background:radial-gradient(ellipse at 60% 30%,#1b2a3b 0%,#0d1117 70%);
+  background:radial-gradient(ellipse at 55% 30%,#1e2e40 0%,#0c1018 70%);
   display:flex;align-items:center;justify-content:center;
-  font-family:'Space Grotesk',system-ui,sans-serif;
+  font-family:'Inter',system-ui,sans-serif;
   overflow:hidden;
 }
 
-/* ── SCENE ── */
-.scene{perspective:1200px;perspective-origin:50% 40%}
-
-/* ── iPHONE 16 ── */
+/* ── SCENE / PHONE ── */
+.scene{perspective:1100px;perspective-origin:50% 42%}
 .phone{
-  --sw:360px;
-  --sh:780.6px;
-  --pad:13px;
-  --r:56px;
+  --pw:375px;--ph:812px;--pr:54px;--pp:11px;
   position:relative;
-  width:calc(var(--sw) + var(--pad)*2);
-  height:calc(var(--sh) + var(--pad)*2);
-  background:linear-gradient(160deg,#2e2e2e 0%,#1a1a1a 100%);
-  border-radius:var(--r);
-  padding:var(--pad);
+  width:calc(var(--pw) + var(--pp)*2);
+  height:calc(var(--ph) + var(--pp)*2);
+  background:linear-gradient(155deg,#333 0%,#191919 100%);
+  border-radius:var(--pr);
+  padding:var(--pp);
   box-shadow:
-    inset 0 0 0 1.5px rgba(255,255,255,.13),
-    inset 0 1px 0 rgba(255,255,255,.22),
-    0 0 0 1px rgba(0,0,0,.85),
-    0 40px 80px rgba(0,0,0,.7),
-    0 12px 32px rgba(0,0,0,.5);
+    inset 0 0 0 1.5px rgba(255,255,255,.14),
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 0 0 1px rgba(0,0,0,.9),
+    0 48px 90px rgba(0,0,0,.75),
+    0 16px 36px rgba(0,0,0,.55);
   transform-style:preserve-3d;
-  animation:float-phone 4s ease-in-out infinite;
+  animation:float 4s ease-in-out infinite;
   will-change:transform;
-  transition:box-shadow .2s ease;
+  transition:box-shadow .18s ease;
 }
 .phone.tilting{animation:none}
-
-/* Volume up/down left */
+/* Left buttons */
 .phone::before{
-  content:"";position:absolute;
-  left:-4px;top:118px;
-  width:4px;height:36px;
-  background:#2a2a2a;border-radius:3px 0 0 3px;
-  box-shadow:0 50px 0 #2a2a2a,0 92px 0 #2a2a2a;
+  content:'';position:absolute;left:-4px;top:120px;
+  width:4px;height:34px;background:#2c2c2c;border-radius:3px 0 0 3px;
+  box-shadow:0 48px 0 #2c2c2c,0 88px 0 #2c2c2c;
 }
-/* Power right */
+/* Right power */
 .phone::after{
-  content:"";position:absolute;
-  right:-4px;top:168px;
-  width:4px;height:76px;
-  background:#2a2a2a;border-radius:0 3px 3px 0;
+  content:'';position:absolute;right:-4px;top:170px;
+  width:4px;height:72px;background:#2c2c2c;border-radius:0 3px 3px 0;
 }
 
-/* ── SCREEN BEZEL ── */
-.screen-wrap{
+/* ── SCREEN ── */
+.sw{
   width:100%;height:100%;
-  border-radius:calc(var(--r) - var(--pad) + 1px);
-  overflow:hidden;
-  background:#000;
-  position:relative;
+  border-radius:calc(var(--pr) - var(--pp) + 1px);
+  overflow:hidden;background:#FAF7F2;position:relative;
+}
+.di{/* dynamic island */
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:120px;height:36px;background:#000;border-radius:20px;z-index:30;
+}
+.hi{/* home indicator */
+  position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
+  width:130px;height:5px;background:rgba(0,0,0,.2);border-radius:3px;z-index:30;
 }
 
-/* Dynamic Island */
-.d-island{
-  position:absolute;top:11px;left:50%;transform:translateX(-50%);
-  width:118px;height:34px;
-  background:#000;border-radius:20px;
-  z-index:30;pointer-events:none;
-}
-/* Home indicator */
-.home-ind{
-  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
-  width:134px;height:5px;
-  background:rgba(0,0,0,.32);border-radius:3px;
-  z-index:30;pointer-events:none;
-}
-
-/* ── SCREEN CANVAS 393×852 → scaled to 360px ── */
-.sc{
+/* ── CANVAS 375×812 ── */
+.app{
   position:absolute;inset:0;
-  width:393px;height:852px;
-  transform-origin:top left;
-  transform:scale(0.91603);
-  background:#fff;
+  background:#FAF7F2;
+  display:flex;flex-direction:column;
   overflow:hidden;
 }
 
-/* ── STATUS BAR ── */
+/* STATUS BAR */
 .sbar{
-  position:absolute;top:16px;left:26px;right:20px;
-  height:28px;display:flex;align-items:center;justify-content:space-between;
-}
-.sbar-time{
-  font-family:'Space Mono',monospace;
-  font-size:15px;font-weight:700;color:#1a1a1a;letter-spacing:.01em;
-}
-.sbar-icons{display:flex;align-items:center;gap:6px}
-
-/* ── APP HEADER ── */
-.app-hdr{
-  position:absolute;top:82px;left:22px;right:22px;
+  height:52px;padding:14px 20px 0;
   display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
 }
-.app-name{
-  font-family:'Space Mono',monospace;
-  font-size:11px;font-weight:700;
-  letter-spacing:.22em;color:#303030;text-transform:uppercase;
-}
+.stime{font-size:15px;font-weight:700;color:#111;letter-spacing:.01em}
+.sicons{display:flex;align-items:center;gap:6px}
 
-/* ── LOCATION ROW ── */
-.loc-row{
-  position:absolute;top:116px;left:22px;
-  display:flex;align-items:center;gap:5px;
-}
-.loc-dot{width:6px;height:6px;border-radius:50%;background:#255BC7;flex-shrink:0}
-.loc-txt{font-size:9.5px;font-weight:500;color:#8E8E8E;letter-spacing:.07em;text-transform:uppercase}
+/* MAIN SCROLL AREA */
+.body{flex:1;padding:0 20px;overflow:hidden;display:flex;flex-direction:column;gap:0}
 
-/* ── ACTIVITY BUTTONS ── */
-.act-row{
-  position:absolute;top:148px;left:21px;right:21px;
-  display:flex;justify-content:space-between;
-}
-.act-btn{
-  width:74px;height:74px;border-radius:15px;
-  border:2px solid #255BC7;
-  background:transparent;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:5px;cursor:pointer;
-  transition:background .3s,border-color .3s;
-  padding:0;
-}
-.act-btn.active{background:#255BC7}
-.act-btn svg path{fill:#255BC7;transition:fill .3s}
-.act-btn.active svg path{fill:#fff}
-.act-lbl{
-  font-size:8px;font-weight:700;color:#255BC7;
-  letter-spacing:.07em;text-transform:uppercase;
-  line-height:1;transition:color .3s;
-  font-family:'Space Mono',monospace;
-}
-.act-btn.active .act-lbl{color:#fff}
+/* GREETING */
+.greet-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0 4px}
+.greet{font-size:26px;font-weight:800;color:#111;letter-spacing:-.03em}
+.trophy{font-size:26px;line-height:1}
 
-/* ── ICA LABELS ── */
-.ica-type{
-  position:absolute;top:242px;left:22px;
-  font-family:'Space Mono',monospace;
-  font-size:10px;font-weight:700;
-  color:#255BC7;letter-spacing:.1em;text-transform:uppercase;
-}
-.ica-street{
-  position:absolute;top:260px;left:22px;right:22px;
-  font-size:17px;font-weight:700;color:#1a1a1a;
-  letter-spacing:-.02em;line-height:1.25;
-}
+/* SECTION LABEL */
+.sec-lbl{font-size:10px;font-weight:600;color:#9E9E9E;letter-spacing:.12em;text-transform:uppercase;padding:10px 0 10px}
 
-/* ── ICA WIDGET ── */
-.ica-widget{
-  position:absolute;top:318px;left:69px;
-  width:255.374px;height:248.369px;
+/* ACTIVITY BUTTONS */
+.acts{display:flex;gap:10px;padding-bottom:14px}
+.abt{
+  flex:1;aspect-ratio:1/1;border-radius:16px;
+  border:2px solid #2B5FD9;background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .3s,border-color .3s;
 }
+.abt.on{background:#2B5FD9;border-color:#2B5FD9}
+.abt svg{display:block;transition:none}
+
+/* ACTIVITY INFO */
+.act-info{padding-bottom:10px;min-height:52px}
+.act-name{font-size:15px;font-weight:700;color:#2B5FD9;margin-bottom:3px;transition:opacity .3s}
+.act-desc{font-size:12px;font-weight:400;color:#555;line-height:1.4;transition:opacity .3s}
+
+/* ICA WIDGET */
+.ica-wrap{
+  position:relative;
+  width:220px;height:220px;
+  align-self:center;
+  margin:2px auto 8px;
+  flex-shrink:0;
+}
+/* warm glow behind */
 .ica-glow{
-  position:absolute;inset:-38%;
-  background:radial-gradient(ellipse,rgba(255,204,102,.42) 0%,rgba(255,224,178,.22) 42%,transparent 68%);
-  border-radius:50%;
-  filter:blur(30px);
-  pointer-events:none;
+  position:absolute;top:50%;left:50%;
+  width:260px;height:260px;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse,rgba(255,210,120,.55) 0%,rgba(255,230,160,.22) 45%,transparent 68%);
+  border-radius:50%;filter:blur(18px);pointer-events:none;
 }
+/* spinning ring */
 .ica-ring{
-  position:absolute;inset:0;width:100%;height:100%;
-  animation:spin-ring 20s linear infinite;
+  position:absolute;inset:0;
+  animation:spin 22s linear infinite;
   transform-origin:50% 50%;
   will-change:transform;
 }
-.ica-frame{
+/* white disc + gauge */
+.ica-disc{
   position:absolute;
-  top:41px;left:47px;
-  width:161.4px;height:165.6px;
+  top:50%;left:50%;
+  width:140px;height:140px;
+  transform:translate(-50%,-50%);
+  background:#fff;border-radius:50%;
+  box-shadow:0 4px 24px rgba(0,0,0,.08);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
 }
-.ica-frame-svg{
-  position:absolute;inset:0;width:100%;height:100%;
-  overflow:visible;
-}
-.ica-info{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:0;padding-top:8px;
-}
-.ica-num{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:48px;font-weight:700;color:#1a1a1a;
-  line-height:.88;letter-spacing:-.04em;
-}
-.ica-sub{
-  font-size:9px;font-weight:500;color:#9E9E9E;
-  letter-spacing:.1em;text-transform:uppercase;margin-top:5px;
-}
-.ica-cat{
-  font-family:'Space Mono',monospace;
-  font-size:8px;font-weight:700;color:#D17D00;
-  letter-spacing:.14em;text-transform:uppercase;margin-top:2px;
-}
+.ica-gauge{position:absolute;inset:0}
+.ica-num{font-size:48px;font-weight:800;color:#111;letter-spacing:-.04em;line-height:1;position:relative;z-index:2}
+.ica-lbl{font-size:11px;font-weight:500;color:#9E9E9E;letter-spacing:.08em;position:relative;z-index:2}
 
-/* ── BOTTOM BAR ── */
-.bot-bar{
-  position:absolute;top:744px;left:0;right:0;height:108px;
-  background:linear-gradient(0deg,#fff 55%,rgba(255,255,255,0));
-  display:flex;align-items:flex-start;justify-content:space-around;
-  padding:6px 16px 0;
+/* STATS ROW */
+.stats{
+  display:flex;justify-content:space-around;align-items:center;
+  padding:8px 0 10px;border-top:1px solid rgba(0,0,0,.07);
+  flex-shrink:0;
 }
-.bot-item{display:flex;align-items:center;gap:6px}
-.bot-lbl{font-size:8px;font-weight:500;color:#9E9E9E;letter-spacing:.05em;text-transform:uppercase;line-height:1.3}
-.bot-val{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#303030;letter-spacing:.03em}
+.stat{display:flex;align-items:center;gap:6px}
+.stat-val{font-size:12px;font-weight:500;color:#444}
 
-/* ── ANIMATIONS ── */
-@keyframes spin-ring{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes float-phone{
-  0%,100%{transform:translateY(0) rotateX(2deg)}
-  50%    {transform:translateY(-14px) rotateX(2deg)}
+/* BOTTOM NAV */
+.bnav{
+  height:72px;padding:0 10px;padding-bottom:8px;
+  border-top:1px solid rgba(0,0,0,.07);
+  display:flex;align-items:center;justify-content:space-around;
+  background:#FAF7F2;flex-shrink:0;
+}
+.bi{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.bi span{font-size:10px;font-weight:500;color:#9E9E9E}
+.bi.on span{color:#2B5FD9}
+
+/* ANIMATIONS */
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotateX(2.5deg)}
+  50%    {transform:translateY(-16px) rotateX(2.5deg)}
 }
 </style>
 </head>
 <body>
 <div class="scene">
- <div class="phone" id="phone">
-  <div class="screen-wrap">
-   <div class="d-island"></div>
+<div class="phone" id="phone">
+ <div class="sw">
+  <div class="di"></div>
 
-   <div class="sc">
+  <div class="app">
 
-    <!-- STATUS BAR -->
-    <div class="sbar">
-      <span class="sbar-time">9:41</span>
-      <div class="sbar-icons">
-        <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
-          <rect x="0" y="6" width="3" height="6" rx="1" fill="#303030"/>
-          <rect x="4.5" y="4" width="3" height="8" rx="1" fill="#303030"/>
-          <rect x="9" y="2" width="3" height="10" rx="1" fill="#303030"/>
-          <rect x="13.5" y="0" width="3" height="12" rx="1" fill="#303030"/>
-        </svg>
-        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-          <circle cx="8" cy="10.8" r="1.4" fill="#303030"/>
-          <path d="M4.5 7.8C5.6 6.8 6.7 6.2 8 6.2C9.3 6.2 10.4 6.8 11.5 7.8" stroke="#303030" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M2 5C3.8 3.3 5.8 2.3 8 2.3C10.2 2.3 12.2 3.3 14 5" stroke="#303030" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".4"/>
-        </svg>
-        <svg width="26" height="13" viewBox="0 0 26 13" fill="none">
-          <rect x=".5" y=".5" width="22" height="12" rx="3.5" stroke="#303030" stroke-opacity=".35"/>
-          <rect x="23" y="4" width="2.5" height="5" rx="1.2" fill="#303030" fill-opacity=".4"/>
-          <rect x="2" y="2" width="17" height="9" rx="2" fill="#303030"/>
-        </svg>
-      </div>
+   <!-- STATUS BAR -->
+   <div class="sbar">
+     <span class="stime">9:41</span>
+     <div class="sicons">
+       <!-- signal -->
+       <svg width="18" height="13" viewBox="0 0 18 13" fill="none">
+         <rect x="0"  y="7"  width="3" height="6" rx="1" fill="#111"/>
+         <rect x="4.5" y="4.5" width="3" height="8.5" rx="1" fill="#111"/>
+         <rect x="9"  y="2"  width="3" height="11" rx="1" fill="#111"/>
+         <rect x="13.5" y="0" width="3" height="13" rx="1" fill="#111"/>
+       </svg>
+       <!-- wifi -->
+       <svg width="17" height="13" viewBox="0 0 17 13" fill="none">
+         <circle cx="8.5" cy="11.5" r="1.5" fill="#111"/>
+         <path d="M5 8.5C6.2 7.3 7.3 6.7 8.5 6.7C9.7 6.7 10.8 7.3 12 8.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+         <path d="M2 5.5C4 3.5 6.1 2.4 8.5 2.4C10.9 2.4 13 3.5 15 5.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".45"/>
+       </svg>
+       <!-- battery -->
+       <svg width="27" height="13" viewBox="0 0 27 13" fill="none">
+         <rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="#111" stroke-opacity=".35"/>
+         <rect x="24" y="4" width="2.5" height="5" rx="1.2" fill="#111" fill-opacity=".4"/>
+         <rect x="2"  y="2" width="18" height="9" rx="2" fill="#111"/>
+       </svg>
+     </div>
+   </div>
+
+   <!-- BODY -->
+   <div class="body">
+
+    <!-- GREETING -->
+    <div class="greet-row">
+      <div class="greet">Hola, Helena</div>
+      <div class="trophy">🏆</div>
     </div>
 
-    <!-- APP HEADER -->
-    <div class="app-hdr">
-      <span class="app-name">NODOS</span>
-      <svg width="38" height="32" viewBox="0 0 38 32" fill="none">
-        <circle cx="19" cy="16" r="12" stroke="#303030" stroke-width="1.5"/>
-        <circle cx="19" cy="16" r="5.5" fill="#303030"/>
-        <circle cx="19" cy="4" r="2.2" fill="#303030"/>
-        <circle cx="19" cy="28" r="2.2" fill="#303030"/>
-        <circle cx="7" cy="16" r="2.2" fill="#303030"/>
-        <circle cx="31" cy="16" r="2.2" fill="#303030"/>
-      </svg>
+    <!-- SECTION LABEL -->
+    <div class="sec-lbl">Hoy te recomendamos</div>
+
+    <!-- 4 ACTIVITY BUTTONS -->
+    <div class="acts">
+
+      <!-- Bike -->
+      <button class="abt on" id="b0" onclick="goTo(0)">
+        <svg width="34" height="28" viewBox="0 0 36 28" fill="none">
+          <circle cx="8"  cy="20" r="7" fill="none" stroke="white" stroke-width="2"/>
+          <circle cx="28" cy="20" r="7" fill="none" stroke="white" stroke-width="2"/>
+          <circle cx="27" cy="8"  r="2.5" fill="white"/>
+          <path d="M27 10.5L24 17H14L10 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M18 13H24L22 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </button>
+
+      <!-- Sprint/Running -->
+      <button class="abt" id="b1" onclick="goTo(1)">
+        <svg width="28" height="34" viewBox="0 0 28 34" fill="none">
+          <circle cx="20" cy="4" r="3" fill="#2B5FD9"/>
+          <path d="M20 7L17 14H10L7 20" stroke="#2B5FD9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M17 14L20 22L17 30" stroke="#2B5FD9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M10 14L7 22" stroke="#2B5FD9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </button>
+
+      <!-- Heart/Salud -->
+      <button class="abt" id="b2" onclick="goTo(2)">
+        <svg width="32" height="28" viewBox="0 0 32 28" fill="none">
+          <path d="M16 24C16 24 3 16.5 3 9C3 5.7 5.7 3 9 3C11.5 3 13.6 4.4 15 6.4C16.4 4.4 18.5 3 21 3C24.3 3 27 5.7 27 9C27 16.5 16 24 16 24Z" fill="#2B5FD9"/>
+        </svg>
+      </button>
+
+      <!-- Tree/Nature -->
+      <button class="abt" id="b3" onclick="goTo(3)">
+        <svg width="28" height="34" viewBox="0 0 28 34" fill="none">
+          <path d="M14 2L5 14H10L4 24H14V30H13V32H15V30H14V24H24L18 14H23L14 2Z" fill="#2B5FD9"/>
+        </svg>
+      </button>
+
     </div>
 
-    <!-- LOCATION -->
-    <div class="loc-row">
-      <div class="loc-dot"></div>
-      <span class="loc-txt">Barceloneta · Barcelona</span>
+    <!-- ACTIVITY TEXT -->
+    <div class="act-info">
+      <div class="act-name" id="act-name">Ciclismo</div>
+      <div class="act-desc" id="act-desc">Si decides salir a pedalear, ¡Ten cuidado al planificar tu ruta!</div>
     </div>
-
-    <!-- ACTIVITY BUTTONS -->
-    <div class="act-row">
-      <button class="act-btn active" id="btn-0">
-        <svg width="26" height="22" viewBox="0 0 28.0975 24" fill="none">
-          <path d="M5.8536 24C4.2341 24 2.8536 23.429 1.7122 22.288C.5707 21.146 0 19.766 0 18.146C0 16.527.5707 15.146 1.7122 14.005C2.8536 12.863 4.2341 12.293 5.8536 12.293C7.4731 12.293 8.8536 12.863 9.9951 14.005C11.1366 15.146 11.7073 16.527 11.7073 18.146C11.7073 19.766 11.1366 21.146 9.9951 22.288C8.8536 23.429 7.4731 24 5.8536 24ZM5.8536 21.659C6.8292 21.659 7.6585 21.317 8.3414 20.634C9.0244 19.951 9.3658 19.122 9.3658 18.146C9.3658 17.171 9.0244 16.341 8.3414 15.659C7.6585 14.976 6.8292 14.634 5.8536 14.634C4.878 14.634 4.0488 14.976 3.3658 15.659C2.6829 16.341 2.3414 17.171 2.3414 18.146C2.3414 19.122 2.6829 19.951 3.3658 20.634C4.0488 21.317 4.878 21.659 5.8536 21.659ZM15.4536 7.727L12.6439 10.537L14.5756 12.556C14.7902 12.771 14.9512 13.015 15.0585 13.288C15.1658 13.561 15.2195 13.854 15.2195 14.166V19.317C15.2195 19.649 15.1073 19.927 14.8829 20.151C14.6585 20.376 14.3805 20.488 14.0488 20.488C13.717 20.488 13.439 20.376 13.2146 20.151C12.9902 19.927 12.878 19.649 12.878 19.317V14.634L9.1317 11.356C8.8975 11.141 8.7219 10.893 8.6048 10.61C8.4878 10.327 8.4292 10.029 8.4292 9.717C8.4292 9.405 8.4927 9.107 8.6195 8.824C8.7463 8.541 8.917 8.293 9.1317 8.078L12.4097 4.8C12.6439 4.566 12.9122 4.39 13.2146 4.273C13.517 4.156 13.8341 4.098 14.1658 4.098C14.4975 4.098 14.8146 4.156 15.117 4.273C15.4195 4.39 15.6878 4.566 15.9219 4.8L18.1463 7.024C18.5951 7.473 19.0878 7.839 19.6244 8.122C20.1609 8.405 20.7317 8.595 21.3366 8.693C21.6683 8.751 21.9268 8.907 22.1122 9.161C22.2975 9.415 22.3609 9.707 22.3024 10.039C22.2439 10.371 22.0878 10.629 21.8341 10.815C21.5805 11 21.2878 11.063 20.9561 11.005C20.078 10.849 19.2536 10.576 18.4829 10.185C17.7122 9.795 17.0146 9.288 16.3902 8.663L15.4536 7.727ZM18.1463 4.683C17.5024 4.683 16.9512 4.454 16.4927 3.995C16.0341 3.537 15.8048 2.985 15.8048 2.341C15.8048 1.698 16.0341 1.146 16.4927.688C16.9512.229 17.5024 0 18.1463 0C18.7902 0 19.3414.229 19.8.688C20.2585 1.146 20.4878 1.698 20.4878 2.341C20.4878 2.985 20.2585 3.537 19.8 3.995C19.3414 4.454 18.7902 4.683 18.1463 4.683ZM22.2439 24C20.6244 24 19.2439 23.429 18.1024 22.288C16.9609 21.146 16.3902 19.766 16.3902 18.146C16.3902 16.527 16.9609 15.146 18.1024 14.005C19.2439 12.863 20.6244 12.293 22.2439 12.293C23.8634 12.293 25.2439 12.863 26.3853 14.005C27.5268 15.146 28.0975 16.527 28.0975 18.146C28.0975 19.766 27.5268 21.146 26.3853 22.288C25.2439 23.429 23.8634 24 22.2439 24ZM22.2439 21.659C23.2195 21.659 24.0488 21.317 24.7317 20.634C25.4146 19.951 25.7561 19.122 25.7561 18.146C25.7561 17.171 25.4146 16.341 24.7317 15.659C24.0488 14.976 23.2195 14.634 22.2439 14.634C21.2683 14.634 20.439 14.976 19.7561 15.659C19.0731 16.341 18.7317 17.171 18.7317 18.146C18.7317 19.122 19.0731 19.951 19.7561 20.634C20.439 21.317 21.2683 21.659 22.2439 21.659Z"/>
-        </svg>
-        <span class="act-lbl">Bike</span>
-      </button>
-
-      <button class="act-btn" id="btn-1">
-        <svg width="26" height="20" viewBox="0 0 33.693 24" fill="none">
-          <path d="M17 14.423L7.885 23.538C7.577 23.846 7.212 24 6.789 24C6.366 24 6 23.846 5.693 23.538C5.385 23.231 5.231 22.865 5.231 22.442C5.231 22.019 5.385 21.654 5.693 21.346L19.385 7.692H15.385V9.231C15.385 9.667 15.237 10.032 14.943 10.327C14.648 10.622 14.282 10.769 13.846 10.769C13.411 10.769 13.045 10.622 12.75 10.327C12.455 10.032 12.308 9.667 12.308 9.231V6.154C12.308 5.718 12.455 5.353 12.75 5.058C13.045 4.763 13.411 4.615 13.846 4.615H21.308C21.718 4.615 22.109 4.692 22.481 4.846C22.853 5 23.18 5.218 23.462 5.5L28.077 10.077C28.59 10.59 29.186 11.019 29.866 11.365C30.545 11.712 31.282 11.962 32.077 12.115C32.513 12.192 32.891 12.391 33.212 12.712C33.532 13.032 33.693 13.41 33.693 13.846C33.693 14.282 33.513 14.641 33.154 14.923C32.795 15.205 32.398 15.321 31.962 15.269C30.808 15.115 29.744 14.808 28.77 14.346C27.795 13.885 26.898 13.256 26.077 12.462L24.539 10.846L21.154 14.231L23.193 16.269C23.552 16.628 23.699 17.058 23.635 17.558C23.571 18.058 23.321 18.436 22.885 18.692L15.885 22.731C15.526 22.936 15.135 22.987 14.712 22.885C14.289 22.782 13.975 22.551 13.77 22.192C13.564 21.833 13.52 21.442 13.635 21.019C13.75 20.596 13.987 20.282 14.346 20.077L19.616 17.038L17 14.423ZM28.423 6.154C27.577 6.154 26.846 5.853 26.231 5.25C25.616 4.647 25.308 3.923 25.308 3.077C25.308 2.231 25.616 1.506 26.231.904C26.846.301 27.577 0 28.423 0C29.27 0 30 .301 30.616.904C31.231 1.506 31.539 2.231 31.539 3.077C31.539 3.923 31.231 4.647 30.616 5.25C30 5.853 29.27 6.154 28.423 6.154Z"/>
-        </svg>
-        <span class="act-lbl">Sprint</span>
-      </button>
-
-      <button class="act-btn" id="btn-2">
-        <svg width="24" height="22" viewBox="0 0 27.157 24" fill="none">
-          <path d="M13.578 24C13.262 24 12.939 23.943 12.611 23.83C12.283 23.717 11.994 23.536 11.745 23.287L9.403 21.149C7.004 18.953 4.837 16.775 2.902 14.614C.967 12.453 0 10.071 0 7.468C0 5.341.713 3.564 2.138 2.139C3.564.713 5.341 0 7.468 0C8.667 0 9.799.255 10.863.764C11.926 1.273 12.832 1.969 13.578 2.851C14.325 1.969 15.23 1.273 16.294.764C17.358.255 18.489 0 19.689 0C21.816 0 23.593.713 25.018 2.139C26.444 3.564 27.157 5.341 27.157 7.468C27.157 10.071 26.195 12.458 24.271 14.631C22.348 16.803 20.164 18.987 17.72 21.182L15.411 23.287C15.163 23.536 14.874 23.717 14.546 23.83C14.218 23.943 13.895 24 13.578 24Z"/>
-        </svg>
-        <span class="act-lbl">Salud</span>
-      </button>
-
-      <button class="act-btn" id="btn-3">
-        <svg width="20" height="24" viewBox="0 0 19.2 24" fill="none">
-          <path d="M8.4 21.6V16.8H6C4.34 16.8 2.925 16.215 1.755 15.045C.585 13.875 0 12.46 0 10.8C0 9.6.33 8.495.99 7.485C1.65 6.475 2.54 5.74 3.66 5.28C3.84 3.78 4.495 2.525 5.625 1.515C6.755.505 8.08 0 9.6 0C11.12 0 12.445.505 13.575 1.515C14.705 2.525 15.36 3.78 15.54 5.28C16.66 5.74 17.55 6.475 18.21 7.485C18.87 8.495 19.2 9.6 19.2 10.8C19.2 12.46 18.615 13.875 17.445 15.045C16.275 16.215 14.86 16.8 13.2 16.8H10.8V21.6H16.8C17.14 21.6 17.425 21.715 17.655 21.945C17.885 22.175 18 22.46 18 22.8C18 23.14 17.885 23.425 17.655 23.655C17.425 23.885 17.14 24 16.8 24H2.4C2.06 24 1.775 23.885 1.545 23.655C1.315 23.425 1.2 23.14 1.2 22.8C1.2 22.46 1.315 22.175 1.545 21.945C1.775 21.715 2.06 21.6 2.4 21.6H8.4Z"/>
-        </svg>
-        <span class="act-lbl">Natura</span>
-      </button>
-    </div>
-
-    <!-- ICA LABELS -->
-    <div class="ica-type" id="ica-type">CiclCl</div>
-    <div class="ica-street" id="ica-street">C/ Barceloneta, 23</div>
 
     <!-- ICA WIDGET -->
-    <div class="ica-widget">
+    <div class="ica-wrap">
       <div class="ica-glow"></div>
 
-      <!-- Spinning ring — 38 exact paths from Figma export -->
-      <svg class="ica-ring" viewBox="0 0 255.374 248.369" fill="none">
-        <!-- Group 1: dark brown #9C5D01, large r≈6.53 -->
-        <path fill="#9C5D01" d="M39.2525 36.0544C42.8592 36.0544 45.7831 33.1305 45.7831 29.5237C45.7831 25.917 42.8592 22.9931 39.2525 22.9931C35.6457 22.9931 32.7218 25.917 32.7218 29.5237C32.7218 33.1305 35.6457 36.0544 39.2525 36.0544Z"/>
-        <path fill="#9C5D01" d="M119.727 14.8294C123.334 14.8294 126.258 11.9055 126.258 8.29877C126.258 4.692 123.334 1.76813 119.727 1.76813C116.121 1.76813 113.197 4.692 113.197 8.29877C113.197 11.9055 116.121 14.8294 119.727 14.8294Z"/>
-        <path fill="#9C5D01" d="M203.742 32.5174C207.349 32.5174 210.273 29.5935 210.273 25.9868C210.273 22.38 207.349 19.4561 203.742 19.4561C200.136 19.4561 197.212 22.38 197.212 25.9868C197.212 29.5935 200.136 32.5174 203.742 32.5174Z"/>
-        <path fill="#9C5D01" d="M238.231 122.721C241.838 122.721 244.762 119.798 244.762 116.191C244.762 112.584 241.838 109.66 238.231 109.66C234.625 109.66 231.701 112.584 231.701 116.191C231.701 119.798 234.625 122.721 238.231 122.721Z"/>
-        <path fill="#9C5D01" d="M197.552 213.81C201.159 213.81 204.083 210.887 204.083 207.28C204.083 203.673 201.159 200.749 197.552 200.749C193.946 200.749 191.022 203.673 191.022 207.28C191.022 210.887 193.946 213.81 197.552 213.81Z"/>
-        <path fill="#9C5D01" d="M126.985 244.859C130.53 245.523 133.943 243.188 134.607 239.643C135.272 236.098 132.937 232.685 129.392 232.021C125.847 231.356 122.434 233.691 121.77 237.236C121.105 240.781 123.44 244.194 126.985 244.859Z"/>
-        <path fill="#9C5D01" d="M46.3265 216.463C49.9332 216.463 52.8571 213.54 52.8571 209.933C52.8571 206.326 49.9332 203.402 46.3265 203.402C42.7197 203.402 39.7958 206.326 39.7958 209.933C39.7958 213.54 42.7197 216.463 46.3265 216.463Z"/>
-        <path fill="#9C5D01" d="M10.9524 132.448C14.5592 132.448 17.4831 129.525 17.4831 125.918C17.4831 122.311 14.5592 119.387 10.9524 119.387C7.34568 119.387 4.42181 122.311 4.42181 125.918C4.42181 129.525 7.34568 132.448 10.9524 132.448Z"/>
-        <!-- Group 2: orange #D17D00, large r≈6.53 -->
-        <path fill="#D17D00" d="M71.0895 32.5174C74.6962 32.5174 77.6201 29.5935 77.6201 25.9868C77.6201 22.38 74.6962 19.4561 71.0895 19.4561C67.4827 19.4561 64.5588 22.38 64.5588 25.9868C64.5588 29.5935 67.4827 32.5174 71.0895 32.5174Z"/>
-        <path fill="#D17D00" d="M164.83 20.1364C168.437 20.1364 171.361 17.2125 171.361 13.6057C171.361 9.99898 168.437 7.07513 164.83 7.07513C161.224 7.07513 158.3 9.99898 158.3 13.6057C158.3 17.2125 161.224 20.1364 164.83 20.1364Z"/>
-        <path fill="#D17D00" d="M225.85 83.8104C229.457 83.8104 232.381 80.8865 232.381 77.2798C232.381 73.673 229.457 70.7491 225.85 70.7491C222.244 70.7491 219.32 73.673 219.32 77.2798C219.32 80.8865 222.244 83.8104 225.85 83.8104Z"/>
-        <path fill="#D17D00" d="M230.272 181.974C233.879 181.974 236.803 179.05 236.803 175.444C236.803 171.837 233.879 168.913 230.272 168.913C226.666 168.913 223.742 171.837 223.742 175.444C223.742 179.05 226.666 181.974 230.272 181.974Z"/>
-        <path fill="#D17D00" d="M171.02 226.191C174.627 226.191 177.551 223.268 177.551 219.661C177.551 216.054 174.627 213.13 171.02 213.13C167.414 213.13 164.49 216.054 164.49 219.661C164.49 223.268 167.414 226.191 171.02 226.191Z"/>
-        <path fill="#D17D00" d="M86.1235 229.729C89.7302 229.729 92.6541 226.805 92.6541 223.199C92.6541 219.592 89.7302 216.668 86.1235 216.668C82.5167 216.668 79.5928 219.592 79.5928 223.199C79.5928 226.805 82.5167 229.729 86.1235 229.729Z"/>
-        <path fill="#D17D00" d="M19.7963 174.014C23.403 174.014 26.3269 171.091 26.3269 167.484C26.3269 163.877 23.403 160.953 19.7963 160.953C16.1895 160.953 13.2656 163.877 13.2656 167.484C13.2656 171.091 16.1895 174.014 19.7963 174.014Z"/>
-        <path fill="#D17D00" d="M25.9867 91.7694C29.5934 91.7694 32.5173 88.8455 32.5173 85.2388C32.5173 81.632 29.5934 78.7081 25.9867 78.7081C22.3799 78.7081 19.456 81.632 19.456 85.2388C19.456 88.8455 22.3799 91.7694 25.9867 91.7694Z"/>
-        <!-- Group 3: dark brown small r≈4.35 -->
-        <path fill="#9C5D01" d="M90.9525 9.59253C93.357 9.59253 95.3062 7.64328 95.3062 5.23877C95.3062 2.83425 93.357.88501 90.9525.88501C88.5479.88501 86.5987 2.83425 86.5987 5.23877C86.5987 7.64328 88.5479 9.59253 90.9525 9.59253Z"/>
-        <path fill="#9C5D01" d="M182.926 41.4285C185.331 41.4285 187.28 39.4793 187.28 37.0748C187.28 34.6703 185.331 32.721 182.926 32.721C180.522 32.721 178.573 34.6703 178.573 37.0748C178.573 39.4793 180.522 41.4285 182.926 41.4285Z"/>
-        <path fill="#9C5D01" d="M228.027 58.2315C230.432 58.2315 232.381 56.2823 232.381 53.8777C232.381 51.4732 230.432 49.524 228.027 49.524C225.623 49.524 223.674 51.4732 223.674 53.8777C223.674 56.2823 225.623 58.2315 228.027 58.2315Z"/>
-        <path fill="#9C5D01" d="M251.02 98.9125C253.425 98.9125 255.374 96.9633 255.374 94.5587C255.374 92.1542 253.425 90.205 251.02 90.205C248.616 90.205 246.667 92.1542 246.667 94.5587C246.667 96.9633 248.616 98.9125 251.02 98.9125Z"/>
-        <path fill="#9C5D01" d="M250.135 151.974C252.54 151.974 254.489 150.024 254.489 147.62C254.489 145.215 252.54 143.266 250.135 143.266C247.731 143.266 245.782 145.215 245.782 147.62C245.782 150.024 247.731 151.974 250.135 151.974Z"/>
-        <path fill="#9C5D01" d="M228.027 203.266C230.432 203.266 232.381 201.316 232.381 198.912C232.381 196.507 230.432 194.558 228.027 194.558C225.623 194.558 223.674 196.507 223.674 198.912C223.674 201.316 225.623 203.266 228.027 203.266Z"/>
-        <path fill="#9C5D01" d="M162.585 244.832C164.99 244.832 166.939 242.882 166.939 240.478C166.939 238.073 164.99 236.124 162.585 236.124C160.181 236.124 158.232 238.073 158.232 240.478C158.232 242.882 160.181 244.832 162.585 244.832Z"/>
-        <path fill="#9C5D01" d="M102.448 248.369C104.853 248.369 106.802 246.419 106.802 244.015C106.802 241.61 104.853 239.661 102.448 239.661C100.044 239.661 98.0947 241.61 98.0947 244.015C98.0947 246.419 100.044 248.369 102.448 248.369Z"/>
-        <path fill="#9C5D01" d="M20.2034 197.076C22.6079 197.076 24.5571 195.126 24.5571 192.722C24.5571 190.317 22.6079 188.368 20.2034 188.368C17.7989 188.368 15.8496 190.317 15.8496 192.722C15.8496 195.126 17.7989 197.076 20.2034 197.076Z"/>
-        <path fill="#9C5D01" d="M10.4758 103.335C12.8803 103.335 14.8295 101.385 14.8295 98.9807C14.8295 96.5762 12.8803 94.627 10.4758 94.627C8.07125 94.627 6.12201 96.5762 6.12201 98.9807C6.12201 101.385 8.07125 103.335 10.4758 103.335Z"/>
-        <path fill="#9C5D01" d="M42.3125 61.7685C44.717 61.7685 46.6662 59.8193 46.6662 57.4148C46.6662 55.0102 44.717 53.061 42.3125 53.061C39.908 53.061 37.9587 55.0102 37.9587 57.4148C37.9587 59.8193 39.908 61.7685 42.3125 61.7685Z"/>
-        <!-- Group 4: orange 80% opacity small -->
-        <path fill="#D17D00" fill-opacity=".8" d="M229.864 146.668C232.269 146.668 234.218 144.718 234.218 142.314C234.218 139.909 232.269 137.96 229.864 137.96C227.46 137.96 225.511 139.909 225.511 142.314C225.511 144.718 227.46 146.668 229.864 146.668Z"/>
-        <path fill="#D17D00" fill-opacity=".8" d="M205.102 61.7685C207.507 61.7685 209.456 59.8193 209.456 57.4148C209.456 55.0102 207.507 53.061 205.102 53.061C202.698 53.061 200.749 55.0102 200.749 57.4148C200.749 59.8193 202.698 61.7685 205.102 61.7685Z"/>
-        <path fill="#D17D00" fill-opacity=".8" d="M102.517 27.2785C104.922 27.2785 106.871 25.3293 106.871 22.9247C106.871 20.5202 104.922 18.571 102.517 18.571C100.113 18.571 98.1637 20.5202 98.1637 22.9247C98.1637 25.3293 100.113 27.2785 102.517 27.2785Z"/>
-        <path fill="#D17D00" fill-opacity=".8" d="M113.129 231.565C115.534 231.565 117.483 229.615 117.483 227.211C117.483 224.806 115.534 222.857 113.129 222.857C110.725 222.857 108.776 224.806 108.776 227.211C108.776 229.615 110.725 231.565 113.129 231.565Z"/>
-        <path fill="#D17D00" fill-opacity=".8" d="M190.953 239.525C193.358 239.525 195.307 237.575 195.307 235.171C195.307 232.766 193.358 230.817 190.953 230.817C188.549 230.817 186.6 232.766 186.6 235.171C186.6 237.575 188.549 239.525 190.953 239.525Z"/>
-        <path fill="#D17D00" fill-opacity=".8" d="M214.83 185.578C217.235 185.578 219.184 183.629 219.184 181.225C219.184 178.82 217.235 176.871 214.83 176.871C212.426 176.871 210.477 178.82 210.477 181.225C210.477 183.629 212.426 185.578 214.83 185.578Z"/>
-        <path fill="#D17D00" fill-opacity=".8" d="M62.7205 236.872C65.125 236.872 67.0742 234.922 67.0742 232.518C67.0742 230.113 65.125 228.164 62.7205 228.164C60.316 228.164 58.3667 230.113 58.3667 232.518C58.3667 234.922 60.316 236.872 62.7205 236.872Z"/>
-        <path fill="#D17D00" fill-opacity=".8" d="M4.35376 159.932C6.75828 159.932 8.70752 157.982 8.70752 155.578C8.70752 153.173 6.75828 151.224 4.35376 151.224C1.94924 151.224 0 153.173 0 155.578C0 157.982 1.94924 159.932 4.35376 159.932Z"/>
-        <path fill="#D17D00" fill-opacity=".8" d="M17.6194 70.6125C20.0239 70.6125 21.9731 68.6633 21.9731 66.2588C21.9731 63.8542 20.0239 61.905 17.6194 61.905C15.2148 61.905 13.2656 63.8542 13.2656 66.2588C13.2656 68.6633 15.2148 70.6125 17.6194 70.6125Z"/>
-        <path fill="#D17D00" fill-opacity=".8" d="M146.735 8.70752C149.14 8.70752 151.089 6.75828 151.089 4.35376C151.089 1.94924 149.14 0 146.735 0C144.331 0 142.382 1.94924 142.382 4.35376C142.382 6.75828 144.331 8.70752 146.735 8.70752Z"/>
-        <path fill="#D17D00" fill-opacity=".8" d="M37.0755 198.844C39.48 198.844 41.4292 196.894 41.4292 194.49C41.4292 192.085 39.48 190.136 37.0755 190.136C34.671 190.136 32.7217 192.085 32.7217 194.49C32.7217 196.894 34.671 198.844 37.0755 198.844Z"/>
+      <!-- Ring of orbiting dots -->
+      <svg class="ica-ring" viewBox="0 0 220 220" fill="none">
+        <!-- 24 dots evenly spaced, alternating dark brown / orange, two sizes -->
+        <!-- r=96 from center (110,110), angles 0..345 step 15° -->
+        <!-- Large dark #9C5D01 at 0,45,90,135,180,225,270,315 -->
+        <!-- Medium orange #D17D00 at 22.5,67.5,112.5,157.5,202.5,247.5,292.5,337.5 -->
+        <!-- Small dots fill between -->
+        <g id="dots">
+          <!-- 0° --><circle cx="206" cy="110" r="7" fill="#D17D00"/>
+          <!-- 15° --><circle cx="202.7" cy="134.8" r="5" fill="#9C5D01"/>
+          <!-- 30° --><circle cx="193.1" cy="158" r="6" fill="#D17D00"/>
+          <!-- 45° --><circle cx="177.8" cy="177.8" r="7.5" fill="#9C5D01"/>
+          <!-- 60° --><circle cx="158" cy="193.1" r="5" fill="#D17D00"/>
+          <!-- 75° --><circle cx="134.8" cy="202.7" r="6" fill="#9C5D01"/>
+          <!-- 90° --><circle cx="110" cy="206" r="7" fill="#D17D00"/>
+          <!-- 105° --><circle cx="85.2" cy="202.7" r="5" fill="#9C5D01"/>
+          <!-- 120° --><circle cx="62" cy="193.1" r="6" fill="#D17D00"/>
+          <!-- 135° --><circle cx="42.2" cy="177.8" r="7.5" fill="#9C5D01"/>
+          <!-- 150° --><circle cx="26.9" cy="158" r="5" fill="#D17D00"/>
+          <!-- 165° --><circle cx="17.3" cy="134.8" r="6" fill="#9C5D01"/>
+          <!-- 180° --><circle cx="14"   cy="110" r="7" fill="#D17D00"/>
+          <!-- 195° --><circle cx="17.3" cy="85.2" r="5" fill="#9C5D01"/>
+          <!-- 210° --><circle cx="26.9" cy="62"  r="6" fill="#D17D00"/>
+          <!-- 225° --><circle cx="42.2" cy="42.2" r="7.5" fill="#9C5D01"/>
+          <!-- 240° --><circle cx="62"   cy="26.9" r="5" fill="#D17D00"/>
+          <!-- 255° --><circle cx="85.2" cy="17.3" r="6" fill="#9C5D01"/>
+          <!-- 270° --><circle cx="110"  cy="14"   r="7" fill="#D17D00"/>
+          <!-- 285° --><circle cx="134.8" cy="17.3" r="5" fill="#9C5D01"/>
+          <!-- 300° --><circle cx="158"  cy="26.9" r="6" fill="#D17D00"/>
+          <!-- 315° --><circle cx="177.8" cy="42.2" r="7.5" fill="#9C5D01"/>
+          <!-- 330° --><circle cx="193.1" cy="62"  r="5" fill="#D17D00"/>
+          <!-- 345° --><circle cx="202.7" cy="85.2" r="6" fill="#9C5D01"/>
+        </g>
       </svg>
 
-      <!-- Center frame -->
-      <div class="ica-frame">
-        <svg class="ica-frame-svg" viewBox="0 0 161.4 165.6" fill="none">
-          <!-- White disc -->
-          <circle cx="80.7" cy="82.8" r="80.7" fill="white"/>
-          <!-- Gauge track (270° arc from -135° to +135°) -->
-          <circle cx="80.7" cy="82.8" r="60" fill="none"
-            stroke="#f0ede8" stroke-width="6.5"
-            stroke-dasharray="283.6 94.2"
-            stroke-dashoffset="-165.5"
-            stroke-linecap="round"/>
-          <!-- Gauge fill -->
-          <circle cx="80.7" cy="82.8" r="60" fill="none"
-            stroke="#D17D00" stroke-width="6.5"
-            stroke-dasharray="165.5 212.1"
-            stroke-dashoffset="-165.5"
+      <!-- White disc with gauge -->
+      <div class="ica-disc">
+        <svg class="ica-gauge" viewBox="0 0 140 140" fill="none">
+          <!-- Track: 270° arc starting at -225° (7 o'clock) -->
+          <circle cx="70" cy="70" r="56"
+            fill="none" stroke="#F0EDE6" stroke-width="7"
+            stroke-dasharray="263.9 87.96"
+            stroke-dashoffset="-153.94"
             stroke-linecap="round"
-            id="gauge-fill"/>
-          <!-- Dot at end -->
-          <circle id="gauge-dot" cx="38.6" cy="22.4" r="5" fill="#D17D00"/>
+          />
+          <!-- Fill arc -->
+          <circle cx="70" cy="70" r="56"
+            fill="none" stroke="#D17D00" stroke-width="7"
+            id="garc"
+            stroke-dasharray="175 175.9"
+            stroke-dashoffset="-153.94"
+            stroke-linecap="round"
+          />
+          <!-- Dot at arc end -->
+          <circle id="gdot" cx="9.8" cy="96.8" r="5.5" fill="#D17D00"/>
         </svg>
-        <div class="ica-info">
-          <div class="ica-num" id="aqi-num">53</div>
-          <div class="ica-sub">ICA · Índice</div>
-          <div class="ica-cat" id="aqi-cat">Moderado</div>
-        </div>
-      </div>
-    </div><!-- /ica-widget -->
-
-    <!-- BOTTOM BAR -->
-    <div class="bot-bar">
-      <div class="bot-item">
-        <svg width="20" height="24" viewBox="0 0 17 25" fill="none">
-          <path d="M8.522 25C13.639 25 17.045 21.654 17.045 16.642C17.045 14.173 16.086 11.716 15.36 10.074C14.044 7.099 11.782 3.827 9.875.864C9.506.309 9.027 0 8.522 0C8.031 0 7.539.309 7.17.864C5.263 3.827 3.001 7.099 1.685 10.074C.971 11.716 0 14.173 0 16.642C0 21.654 3.406 25 8.522 25Z" fill="#0071C2"/>
-        </svg>
-        <div>
-          <div class="bot-lbl">Humedad</div>
-          <div class="bot-val">62%</div>
-        </div>
-      </div>
-      <div class="bot-item">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="5" fill="#D17D00"/>
-          <path d="M12 2V4M12 20V22M2 12H4M20 12H22M4.93 4.93L6.34 6.34M17.66 17.66L19.07 19.07M4.93 19.07L6.34 17.66M17.66 6.34L19.07 4.93" stroke="#D17D00" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <div>
-          <div class="bot-lbl">Temp</div>
-          <div class="bot-val">22°C</div>
-        </div>
-      </div>
-      <div class="bot-item">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22C5.71 22 7 19 11 19C16 19 20 15 21 8.5C21 8.5 19 7 17 8Z" fill="#2D8653"/>
-          <path d="M14 9C14 9 9 9 7 16C7 16 5 12 7 8C9 4 14 4 14 4V9Z" fill="#2D8653" opacity=".65"/>
-        </svg>
-        <div>
-          <div class="bot-lbl">Verde</div>
-          <div class="bot-val">2a ICA</div>
-        </div>
+        <div class="ica-num" id="ica-n">75</div>
+        <div class="ica-lbl">ICA</div>
       </div>
     </div>
 
-   </div><!-- /sc -->
+    <!-- STATS ROW -->
+    <div class="stats">
+      <div class="stat">
+        <!-- sun -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="4" fill="#D17D00"/>
+          <line x1="10" y1="1" x2="10" y2="3.5" stroke="#D17D00" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="10" y1="16.5" x2="10" y2="19" stroke="#D17D00" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="1" y1="10" x2="3.5" y2="10" stroke="#D17D00" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="16.5" y1="10" x2="19" y2="10" stroke="#D17D00" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="3.5" y1="3.5" x2="5.4" y2="5.4" stroke="#D17D00" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="14.6" y1="14.6" x2="16.5" y2="16.5" stroke="#D17D00" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="3.5" y1="16.5" x2="5.4" y2="14.6" stroke="#D17D00" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="14.6" y1="5.4" x2="16.5" y2="3.5" stroke="#D17D00" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="stat-val" id="st-temp">20°C</span>
+      </div>
+      <div class="stat">
+        <!-- droplet -->
+        <svg width="16" height="21" viewBox="0 0 16 21" fill="none">
+          <path d="M8 1C8 1 1 9 1 13.5C1 17.1 4.1 20 8 20C11.9 20 15 17.1 15 13.5C15 9 8 1 8 1Z" fill="#2B5FD9"/>
+        </svg>
+        <span class="stat-val" id="st-hum">76% hum</span>
+      </div>
+      <div class="stat">
+        <!-- leaf -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M17 2C17 2 8 3 5 8C3.5 10.5 4 14 6 16C8 18 12 18 15 15C17.5 12.5 18 7 17 2Z" fill="#2D8653"/>
+          <path d="M6 16C6 16 7 12 10 9" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        <span class="stat-val" id="st-pol">1 bajo</span>
+      </div>
+    </div>
 
-   <div class="home-ind"></div>
-  </div><!-- /screen-wrap -->
- </div><!-- /phone -->
+   </div><!-- /body -->
+
+   <!-- BOTTOM NAV -->
+   <div class="bnav">
+     <div class="bi on">
+       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+         <path d="M3 9L11 2L19 9V19C19 19.6 18.6 20 18 20H14V14H8V20H4C3.4 20 3 19.6 3 19V9Z" fill="#2B5FD9"/>
+       </svg>
+       <span>Home</span>
+     </div>
+     <div class="bi">
+       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+         <rect x="3" y="4" width="6" height="14" rx="1" stroke="#9E9E9E" stroke-width="1.6" fill="none"/>
+         <rect x="13" y="4" width="6" height="14" rx="1" stroke="#9E9E9E" stroke-width="1.6" fill="none"/>
+         <path d="M9 7H13" stroke="#9E9E9E" stroke-width="1.4" stroke-linecap="round"/>
+         <path d="M9 11H13" stroke="#9E9E9E" stroke-width="1.4" stroke-linecap="round"/>
+         <path d="M9 15H13" stroke="#9E9E9E" stroke-width="1.4" stroke-linecap="round"/>
+       </svg>
+       <span>Mapa</span>
+     </div>
+     <div class="bi">
+       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+         <circle cx="11" cy="9" r="5" stroke="#9E9E9E" stroke-width="1.6" fill="none"/>
+         <path d="M8.5 14.5L9.5 19H12.5L13.5 14.5" stroke="#9E9E9E" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+         <line x1="9" y1="19" x2="13" y2="19" stroke="#9E9E9E" stroke-width="1.4" stroke-linecap="round"/>
+       </svg>
+       <span>Aprende</span>
+     </div>
+     <div class="bi">
+       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+         <circle cx="11" cy="7" r="3.5" stroke="#9E9E9E" stroke-width="1.6" fill="none"/>
+         <path d="M3 20C3 16.1 6.6 13 11 13C15.4 13 19 16.1 19 20" stroke="#9E9E9E" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+       </svg>
+       <span>Perfil</span>
+     </div>
+   </div>
+
+  </div><!-- /app -->
+
+  <div class="hi"></div>
+ </div><!-- /sw -->
+</div><!-- /phone -->
 </div><!-- /scene -->
 
 <script>
-const SCREENS = [
-  { btnIdx:0, type:'CiclCl',  street:'C/ Barceloneta, 23',  aqi:53, cat:'Moderado', arc:.58 },
-  { btnIdx:1, type:'Sprint',  street:'Pg. Marítim, 5',      aqi:47, cat:'Bueno',    arc:.46 },
-  { btnIdx:2, type:'Salud',   street:'C/ de la Marina, 12', aqi:63, cat:'Alto',     arc:.70 },
-  { btnIdx:3, type:'Natura',  street:'Av. del Litoral, 90', aqi:38, cat:'Bueno',    arc:.36 },
+const DATA = [
+  { name:'Ciclismo',  desc:'Si decides salir a pedalear, ¡Ten cuidado al planificar tu ruta!', aqi:75, temp:'20°C', hum:'76% hum', pol:'1 bajo',  arc:.65 },
+  { name:'Sprint',    desc:'Buenas condiciones para correr. Evita las horas de mayor tráfico.', aqi:52, temp:'21°C', hum:'71% hum', pol:'2 medio', arc:.42 },
+  { name:'Salud',     desc:'La calidad del aire puede afectar tu bienestar. Toma precauciones.', aqi:88, temp:'22°C', hum:'68% hum', pol:'3 alto',  arc:.80 },
+  { name:'Natura',    desc:'Excelente día para actividades al aire libre en zonas verdes.',       aqi:38, temp:'19°C', hum:'80% hum', pol:'1 bajo',  arc:.28 },
 ];
 
-const btns      = [0,1,2,3].map(i => document.getElementById('btn-'+i));
-const aqiNum    = document.getElementById('aqi-num');
-const aqiCat    = document.getElementById('aqi-cat');
-const icaType   = document.getElementById('ica-type');
-const icaStreet = document.getElementById('ica-street');
-const gaugeFill = document.getElementById('gauge-fill');
-const gaugeDot  = document.getElementById('gauge-dot');
+const btns    = [0,1,2,3].map(i => document.getElementById('b'+i));
+const actName = document.getElementById('act-name');
+const actDesc = document.getElementById('act-desc');
+const icaN    = document.getElementById('ica-n');
+const garc    = document.getElementById('garc');
+const gdot    = document.getElementById('gdot');
+const stTemp  = document.getElementById('st-temp');
+const stHum   = document.getElementById('st-hum');
+const stPol   = document.getElementById('st-pol');
 
 let cur = 0;
 
-function setScreen(i) {
-  const s = SCREENS[i];
-  btns.forEach((b,j) => b.classList.toggle('active', j === i));
-  aqiNum.textContent    = s.aqi;
-  aqiCat.textContent    = s.cat;
-  icaType.textContent   = s.type;
-  icaStreet.textContent = s.street;
+function goTo(i) {
+  const d = DATA[i];
+  btns.forEach((b,j) => b.classList.toggle('on', j===i));
 
-  // Gauge: 270° sweep, starts at -135° (bottom-left)
-  const r    = 60;
-  const circ = 2 * Math.PI * r;          // ≈ 376.99
-  const sweep = circ * 0.75;             // 270° portion ≈ 282.7
-  const fill  = sweep * s.arc;
+  // swap icon colors
+  btns.forEach((b,j) => {
+    b.querySelectorAll('path,circle,line,rect').forEach(el => {
+      const isStroke = el.getAttribute('stroke') && el.getAttribute('stroke') !== 'none' && !el.getAttribute('fill')?.startsWith('#');
+      if(j === i) {
+        if(el.getAttribute('fill') && el.getAttribute('fill') !== 'none') el.setAttribute('fill','white');
+        if(el.getAttribute('stroke') && el.getAttribute('stroke') !== 'none') el.setAttribute('stroke','white');
+      } else {
+        if(el.getAttribute('fill') && el.getAttribute('fill') !== 'none' && el.getAttribute('fill') !== 'white') {} // already right color
+        if(el.getAttribute('stroke') === 'white') el.setAttribute('stroke','#2B5FD9');
+        if(el.getAttribute('fill') === 'white') el.setAttribute('fill','#2B5FD9');
+      }
+    });
+  });
+
+  actName.textContent = d.name;
+  actDesc.textContent = d.desc;
+  icaN.textContent    = d.aqi;
+  stTemp.textContent  = d.temp;
+  stHum.textContent   = d.hum;
+  stPol.textContent   = d.pol;
+
+  // gauge arc
+  const r = 56, circ = 2*Math.PI*r;
+  const sweep = circ * 0.75;
+  const fill  = sweep * d.arc;
   const gap   = circ - fill;
-  const offset = -(circ * 0.375);        // start offset for -135°
-  gaugeFill.setAttribute('stroke-dasharray', `${fill.toFixed(2)} ${gap.toFixed(2)}`);
-  gaugeFill.setAttribute('stroke-dashoffset', offset.toFixed(2));
+  const off   = -(circ * 0.375);
+  garc.setAttribute('stroke-dasharray', `${fill.toFixed(1)} ${gap.toFixed(1)}`);
+  garc.setAttribute('stroke-dashoffset', off.toFixed(1));
 
-  // Dot position at end of arc
-  const startRad = -135 * Math.PI / 180;
-  const endRad   = startRad + (270 * Math.PI / 180) * s.arc;
-  const cx = 80.7, cy = 82.8;
-  gaugeDot.setAttribute('cx', (cx + r * Math.cos(endRad)).toFixed(2));
-  gaugeDot.setAttribute('cy', (cy + r * Math.sin(endRad)).toFixed(2));
+  // dot
+  const startA = -225 * Math.PI/180;
+  const endA   = startA + (270*Math.PI/180)*d.arc;
+  const cx=70, cy=70;
+  gdot.setAttribute('cx', (cx + r*Math.cos(endA)).toFixed(1));
+  gdot.setAttribute('cy', (cy + r*Math.sin(endA)).toFixed(1));
 
   cur = i;
 }
 
-setScreen(0);
-setInterval(() => setScreen((cur + 1) % SCREENS.length), 2500);
+goTo(0);
+setInterval(() => goTo((cur+1) % DATA.length), 2500);
 
-// ── TILT 3D ──
+// ── TILT ──
 const phone = document.getElementById('phone');
 const scene = document.querySelector('.scene');
 
 document.addEventListener('mousemove', e => {
-  const rect = scene.getBoundingClientRect();
-  const dx = (e.clientX - rect.left  - rect.width  / 2) / (rect.width  / 2);
-  const dy = (e.clientY - rect.top   - rect.height / 2) / (rect.height / 2);
+  const r = scene.getBoundingClientRect();
+  const dx = (e.clientX - r.left  - r.width /2) / (r.width /2);
+  const dy = (e.clientY - r.top   - r.height/2) / (r.height/2);
   phone.classList.add('tilting');
-  phone.style.transform = `rotateX(${(-dy * 12).toFixed(1)}deg) rotateY(${(dx * 10).toFixed(1)}deg)`;
-  const sx = -dx * 22, sy = (-dy * 20 + 44);
+  phone.style.transform = `rotateX(${(-dy*11).toFixed(1)}deg) rotateY(${(dx*9).toFixed(1)}deg)`;
   phone.style.boxShadow = `
-    inset 0 0 0 1.5px rgba(255,255,255,.13),
-    inset 0 1px 0 rgba(255,255,255,.22),
-    0 0 0 1px rgba(0,0,0,.85),
-    ${sx}px ${sy}px 80px rgba(0,0,0,.72),
-    0 12px 32px rgba(0,0,0,.5)`;
+    inset 0 0 0 1.5px rgba(255,255,255,.14),
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 0 0 1px rgba(0,0,0,.9),
+    ${(-dx*20).toFixed(0)}px ${(dy*18+42).toFixed(0)}px 80px rgba(0,0,0,.75),
+    0 12px 30px rgba(0,0,0,.5)`;
 });
-
 document.addEventListener('mouseleave', () => {
   phone.classList.remove('tilting');
   phone.style.transform = '';
