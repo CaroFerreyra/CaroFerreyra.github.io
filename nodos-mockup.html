@@ -11,15 +11,17 @@ body{
   background:radial-gradient(ellipse at 55% 30%,#1e2e40 0%,#0c1018 70%);
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;
+  /* scale down for embedded use — parent iframe sets actual size */
+  container-type:size;
 }
 
 .scene{perspective:1100px;perspective-origin:50% 42%}
 
 .phone{
-  --pw:390px;
-  --ph:844px;
-  --pp:13px;
-  --pr:56px;
+  --pw:min(390px, 90vw);
+  --ph:calc(var(--pw) * 844 / 390);
+  --pp:clamp(9px,3.3%,13px);
+  --pr:clamp(40px,14.4%,56px);
   position:relative;
   width:calc(var(--pw) + var(--pp)*2);
   height:calc(var(--ph) + var(--pp)*2);

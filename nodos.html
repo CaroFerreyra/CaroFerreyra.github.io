@@ -258,6 +258,18 @@ nav {
   70%     { transform: translateY(6px) rotate(-.2deg) }
 }
 .nodos-img-outer { width: 100% }
+.nodos-intro-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 32px;
+  align-items: center;
+}
+@media(max-width:768px) {
+  .nodos-intro-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}
 .nodos-img-wrap {
   position: relative; border-radius: 20px; overflow: hidden;
   box-shadow: 0 12px 48px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.3);
@@ -499,25 +511,24 @@ footer {
     <!-- ── GALLERY ─────────────────────────────────────────────────── -->
     <div class="mgallery-dl">
 
-      <div class="nodos-img-outer m-reveal" style="display:flex;justify-content:center">
-        <div class="nodos-img-wrap" style="border-radius:52px;overflow:hidden;width:416px;max-width:100%">
+      <!-- 2-col: mockup izquierda + Contexto/Desafío derecha -->
+      <div class="m-reveal nodos-intro-grid">
+        <div class="nodos-img-wrap" style="border-radius:44px;overflow:hidden;width:300px;max-width:100%;justify-self:center">
           <iframe src="nodos-mockup.html"
-                  width="416" height="892"
+                  width="300" height="676"
                   frameborder="0" scrolling="no"
-                  style="display:block;border:none;width:416px;height:892px;max-width:100%">
+                  style="display:block;border:none;width:300px;height:676px;max-width:100%">
           </iframe>
         </div>
-      </div>
-
-      <!-- 2-col grid: Contexto, Desafío -->
-      <div class="mcase-grid mcase-grid-2col m-reveal">
-        <div class="mcase-card">
-          <h3 class="mcase-title" data-k="c1t">Contexto</h3>
-          <div class="mcase-body" data-k="c1b"><p>El equipo busca promover cambios positivos en el bienestar de los habitantes de Barcelona y en la salud medioambiental de la ciudad, desarrollando herramientas digitales que usan datos de calidad del aire en tiempo real de CALIOPE y el Mapa de Calles Saludables de Barcelona.</p><p>Proyecto realizado en equipo con Álvaro Villegas, Angela García, Iván Lopez y Josefa Lozano.</p></div>
-        </div>
-        <div class="mcase-card">
-          <h3 class="mcase-title" data-k="c2t">Desafío</h3>
-          <div class="mcase-body" data-k="c2b"><p>En Barcelona, la salud física y mental se ve afectada por contaminantes como NO2 y PM2.5, la falta de espacios verdes y el alto ruido urbano. La movilidad no sostenible limita la actividad física necesaria.</p><p>Hay poca conciencia pública sobre los riesgos de la mala calidad del aire, dificultando la adopción de alternativas de movilidad más saludables.</p></div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="mcase-card">
+            <h3 class="mcase-title" data-k="c1t">Contexto</h3>
+            <div class="mcase-body" data-k="c1b"><p>El equipo busca promover cambios positivos en el bienestar de los habitantes de Barcelona y en la salud medioambiental de la ciudad, desarrollando herramientas digitales que usan datos de calidad del aire en tiempo real de CALIOPE y el Mapa de Calles Saludables de Barcelona.</p><p>Proyecto realizado en equipo con Álvaro Villegas, Angela García, Iván Lopez y Josefa Lozano.</p></div>
+          </div>
+          <div class="mcase-card">
+            <h3 class="mcase-title" data-k="c2t">Desafío</h3>
+            <div class="mcase-body" data-k="c2b"><p>En Barcelona, la salud física y mental se ve afectada por contaminantes como NO2 y PM2.5, la falta de espacios verdes y el alto ruido urbano. La movilidad no sostenible limita la actividad física necesaria.</p><p>Hay poca conciencia pública sobre los riesgos de la mala calidad del aire, dificultando la adopción de alternativas de movilidad más saludables.</p></div>
+          </div>
         </div>
       </div>
 
