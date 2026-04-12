@@ -513,13 +513,15 @@ footer {
 
       <!-- 2-col: mockup izquierda + Contexto/Desafío derecha -->
       <div class="m-reveal nodos-intro-grid">
-        <div style="width:300px;max-width:100%;justify-self:center">
+        <div style="width:300px;max-width:100%;justify-self:center;position:relative">
           <iframe src="nodos-mockup.html"
                   width="300" height="676"
                   frameborder="0" scrolling="no"
                   allowtransparency="true"
-                  style="display:block;border:none;width:300px;height:676px;max-width:100%;background:transparent">
+                  style="display:block;border:none;width:300px;height:676px;max-width:100%;background:transparent;pointer-events:none">
           </iframe>
+          <!-- overlay: captures mouse for custom cursor without blocking GIF -->
+          <div style="position:absolute;inset:0;z-index:10;cursor:none"></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div class="mcase-card">
@@ -530,12 +532,6 @@ footer {
             <h3 class="mcase-title" data-k="c2t">Desafío</h3>
             <div class="mcase-body" data-k="c2b"><p>En Barcelona, la salud física y mental se ve afectada por contaminantes como NO2 y PM2.5, la falta de espacios verdes y el alto ruido urbano. La movilidad no sostenible limita la actividad física necesaria.</p><p>Hay poca conciencia pública sobre los riesgos de la mala calidad del aire, dificultando la adopción de alternativas de movilidad más saludables.</p></div>
           </div>
-        </div>
-      </div>
-
-      <div class="nodos-img-outer m-reveal">
-        <div class="nodos-img-wrap">
-          <img class="mwelly-img" src="image/nodos/82868eba-6459-40d8-a5ac-388021dac985_rw_1200 1.svg" alt="Nodos — Pantallas de la app" loading="lazy">
         </div>
       </div>
 
@@ -564,6 +560,12 @@ footer {
         <div class="mcase-card">
           <h3 class="mcase-title" data-k="c7t">Aprendizajes</h3>
           <div class="mcase-body" data-k="c7b"><p>Comunicar temas complejos como la calidad del aire y explorar distintas opciones de representación de diseño fue el mayor aprendizaje de este proyecto.</p><p>Destacó la importancia del trabajo en equipo, la retroalimentación constante y la iteración. La colaboración aseguró que el producto fuera funcional y alineado con las necesidades de los usuarios y la viabilidad técnica.</p></div>
+        </div>
+      </div>
+
+      <div class="nodos-img-outer m-reveal">
+        <div class="nodos-img-wrap">
+          <img class="mwelly-img" src="image/nodos/82868eba-6459-40d8-a5ac-388021dac985_rw_1200 1.svg" alt="Nodos — Pantallas de la app" loading="lazy">
         </div>
       </div>
 
