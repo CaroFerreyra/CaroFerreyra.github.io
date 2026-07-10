@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nodos — Carolina Ferreyra</title>
-<meta name="description" content="Nodos: app móvil de calidad del aire y rutas urbanas saludables en Barcelona.">
+<title>Modo Casona — Carolina Ferreyra</title>
+<meta name="description" content="Modo Casona: gestión creativa y diseño web para un centro cultural en Montevideo.">
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg">
 <link rel="stylesheet" href="styles.css">
 <script src="case-data.js"></script>
@@ -131,7 +131,7 @@ class Component {
     document.body.style.color = 'var(--text)';
     this.reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const qs = new URLSearchParams(location.search);
-    this.id = 'nodos';
+    this.id = 'casona';
     this.lang = qs.get('lang') || localStorage.getItem('cf_tpl_lang') || 'es';
     this.theme = qs.get('theme') || localStorage.getItem('cf_tpl_theme') || 'dark';
     this.CASES = window.CF_CASES || {};

@@ -4,704 +4,720 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Datalog — Carolina Ferreyra</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<meta name="description" content="Caso de estudio: Datalog — plataforma de visualización de datos para monitorear consumo de servicios públicos.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://carolinaferreyra.space/datalog.html">
-<meta property="og:title" content="Datalog — Carolina Ferreyra">
-<meta property="og:description" content="Caso de estudio: Datalog — plataforma de visualización de datos para monitorear consumo de servicios públicos.">
-<meta property="og:image" content="https://carolinaferreyra.space/display%20image.png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Datalog — Carolina Ferreyra">
-<meta name="twitter:description" content="Caso de estudio: Datalog — plataforma de visualización de datos para monitorear consumo de servicios públicos.">
-<meta name="twitter:image" content="https://carolinaferreyra.space/display%20image.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta name="description" content="Datalog: dashboard de consumo de servicios públicos con visualización de datos intuitiva.">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg">
+<link rel="stylesheet" href="styles.css">
+<script src="case-data.js"></script>
 <style>
-/* ── TOKENS — idénticos a portfolio.html ──────────────────────────────── */
-:root {
-  --bg:      #080808;
-  --surface: #111111;
-  --bg3:     #1a1a1a;
-  --text:    #f9f9f9;
-  --muted:   #aeaeae;
-  --accent:  #c8ff4c;
-  --border:  rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.18);
-}
-[data-theme="light"] {
-  --bg:      #f0efe9;
-  --surface: #e4e3dd;
-  --bg3:     #d8d7d1;
-  --text:    #0a0a0a;
-  --muted:   #525252;   /* 6.5:1 sobre todas las superficies light ✓ */
-  --accent:  #2d6000;
-  --border:  rgba(0,0,0,0.10);
-  --border2: rgba(0,0,0,0.22);
-}
 
-*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0 }
-html { scroll-behavior: smooth }
-/* FOCUS — WCAG 2.4.7 */
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Space Grotesk', system-ui, sans-serif;
-  cursor: none;
-  overflow-x: hidden;
-  opacity: 0;
-  transition: background .4s, color .4s, opacity .35s ease;
-  padding-top: 72px;
-}
-body.loaded{opacity:1}
-body.leaving{opacity:0;transition:opacity .25s ease}
-a   { color: inherit; text-decoration: none }
-img { max-width: 100%; display: block }
-button { background: none; border: none; cursor: none; font-family: inherit; color: inherit }
+  @keyframes cf-fu { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @media (hover: hover) and (pointer: fine) { body { cursor: none; } }
+  @media (hover: none), (pointer: coarse) { #cf-cur-dot, #cf-cur-ring { display: none !important; } }
+  @media (max-width: 900px) { #cf-nav-links { display: none !important; } }
 
-/* ── CURSOR — idéntico a portfolio.html ───────────────────────────────── */
-#cursor-glass {
-  position: fixed; width: 10px; height: 10px; border-radius: 50%;
-  pointer-events: none; z-index: 9999; transform: translate(-50%,-50%);
-  background: #fff; mix-blend-mode: difference;
-  transition: opacity .15s, transform .15s;
-}
-body.cactive #cursor-glass { opacity: 0; transform: translate(-50%,-50%) scale(0) }
-
-#cursor-ring {
-  position: fixed; width: 12px; height: 12px; border-radius: 50%;
-  pointer-events: none; z-index: 9997; transform: translate(-50%,-50%);
-  border: 1.5px solid rgba(255,255,255,0.28);
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.06),
-              0 8px 32px rgba(0,0,0,0.35),
-              inset 0 1px 0 rgba(255,255,255,0.12);
-  backdrop-filter: contrast(1.1) brightness(1.04) saturate(1.15);
-  -webkit-backdrop-filter: contrast(1.1) brightness(1.04) saturate(1.15);
-  opacity: 0;
-  transition: width .24s cubic-bezier(.25,.46,.45,.94),
-              height .24s cubic-bezier(.25,.46,.45,.94),
-              opacity .2s;
-  will-change: left, top;
-}
-#cursor-ring.on { width: 80px; height: 80px; opacity: 1 }
-[data-theme="light"] #cursor-ring { border-color: rgba(0,0,0,0.18); box-shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.10) }
-@media(hover:none),(pointer:coarse){body,button,a{cursor:auto}#cursor-glass,#cursor-ring{display:none}}
-
-/* ── NAVBAR (Figma node 5:69) — h:72px, bg:#111, px:48px ─────────────── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: 72px; padding: 0 48px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--surface);
-  display: flex; align-items: center; justify-content: space-between;
-  transition: background .4s, border-color .4s;
-}
-/* Logo — bold 13px monospace */
-.nav-logo {
-  font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700;
-  letter-spacing: .08em; text-transform: uppercase;
-  flex-shrink: 0; transition: color .2s;
-}
-.nav-logo:hover { color: var(--accent) }
-/* Center links — flex-1, justify-center, gap-36 */
-.nav-center {
-  flex: 1; display: flex; justify-content: center; align-items: center; gap: 36px;
-}
-.nav-link {
-  display: flex; align-items: center; gap: 8px;
-  font-family: 'Space Mono', monospace; font-size: 11px;
-  letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted); transition: color .2s; white-space: nowrap;
-}
-.nav-link:hover { color: var(--text) }
-.nav-num { color: var(--accent); font-size: 10px }
-/* Right group — gap-24 */
-.nav-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0 }
-/* CV pill — border #111, rounded-20 */
-.nav-cv {
-  padding: 7px 15px; border-radius: 20px;
-  border: 1px solid var(--border);
-  font-family: 'Space Mono', monospace; font-size: 10px;
-  letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted); transition: color .25s, border-color .25s;
-}
-.nav-cv:hover { border-color: var(--accent); color: var(--accent) }
-/* ES / EN — plain text, gap-4 */
-.nav-lang {
-  display: flex; align-items: center; gap: 4px;
-  font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .1em;
-}
-.nav-lang button { padding:6px 11px; color:var(--muted); transition:color .25s,background .25s; letter-spacing:.1em; border-right:1px solid var(--border) }
-.nav-lang button:last-child { border-right:none }
-.nav-lang button.active { color:var(--accent) }
-.nav-lang button:not(.active):hover { color:var(--text) }
-/* Icon circle — 34x34, border */
-.nav-icon {
-  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-  border: 1px solid var(--border); border-radius: 50%;
-  color: var(--muted); transition: color .25s, border-color .25s; cursor: none;
-}
-.nav-icon:hover { border-color: var(--accent); color: var(--accent) }
-
-
-/* ── PAGE WRAPPER ────────────────────────────────────────────────────── */
-.page { position: relative; overflow: hidden }
-
-/* Glow blob (Figma node 23:2035) — absolute, #d9d9d9, blur 400px, 414×427, left 513, top 718.7 */
-.glow {
-  position: absolute; pointer-events: none; z-index: 0;
-  width: 414px; height: 427px;
-  left: 513px; top: 718.7px;
-  background: #d9d9d9; filter: blur(400px); border-radius: 50%;
-}
-
-/* ── MAIN CONTENT — mismo top gap que modales portfolio (80px desde nav) ── */
-.dl-wrap {
-  position: relative; z-index: 1;
-  padding: 80px 140px 100px;
-  display: flex; flex-direction: column;
-  align-items: center; gap: 56px;
-}
-
-/* ── HEADER BLOCK (Figma node 1:123) ─────────────────────────────────── */
-.dl-head {
-  width: 100%;
-  padding-bottom: 40px;
-  border-bottom: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  align-items: flex-start; gap: 12px;
-}
-/* Eyebrow (node 1:124) — shrink-0 centered, accent 11px mono */
-.dl-eyebrow {
-  font-family: 'Space Mono', monospace; font-size: 11px;
-  letter-spacing: .15em; text-transform: uppercase;
-  color: var(--accent); white-space: nowrap;
-}
-/* Title (node 1:125) — min-w-full (full width), 88px bold */
-.dl-title {
-  width: 100%;
-  font-size: 88px; font-weight: 700;
-  letter-spacing: -.02em; text-transform: uppercase; line-height: .92;
-  color: var(--text);
-}
-/* Description (node 1:126) — min-w-full, 16px muted */
-.dl-desc {
-  width: 100%;
-  font-size: 16px; line-height: 1.6; color: var(--muted);
-}
-/* Tags row (node 1:127) — flex-wrap justify-center gap-7 pt-8 */
-.dl-tags {
-  display: flex; flex-wrap: wrap;
-  justify-content: center; align-items: center;
-  gap: 7px; padding-top: 8px;
-}
-/* Each tag — border2 for sufficient contrast on all surfaces */
-.dl-tag {
-  padding: 5px 13px; border-radius: 20px;
-  border: 1px solid var(--border2);
-  font-family: 'Space Mono', monospace; font-size: 10px;
-  letter-spacing: .08em; text-transform: uppercase;
-  color: var(--muted);
-}
-/* Meta row (node 1:138) — flex gap-48 items-center justify-center pt-20 */
-.dl-meta {
-  display: flex; flex-wrap: wrap;
-  justify-content: center; align-items: center;
-  gap: 48px; padding-top: 20px;
-}
-.dl-mi { display: flex; flex-direction: column; align-items: center; gap: 4px }
-.dl-ml {
-  font-family: 'Space Mono', monospace; font-size: 10px;
-  letter-spacing: .15em; text-transform: uppercase; color: var(--muted);
-}
-.dl-mv { font-size: 14px; font-weight: 500; color: var(--text) }
-
-/* ── OVERVIEW BLOCK (Figma node 1:148) ───────────────────────────────── */
-/* flex-col items-center gap-16, w-full */
-.dl-overview {
-  width: 100%;
-  display: flex; flex-direction: column;
-  align-items: flex-start; gap: 16px;
-}
-/* Label — centered, accent 10px mono */
-.dl-ov-label {
-  font-family: 'Space Mono', monospace; font-size: 10px;
-  letter-spacing: .15em; text-transform: uppercase;
-  color: var(--accent); white-space: nowrap;
-}
-/* Text — min-w-full (full width), 17px */
-.dl-ov-text {
-  width: 100%;
-  font-size: 17px; line-height: 1.75; color: var(--text);
-}
-
-/* ── GALLERY (Figma node 1:151) — flex-col items-center w-full gap-24 ── */
-.dl-gallery {
-  width: 100%;
-  display: flex; flex-direction: column;
-  align-items: center; gap: 24px;
-}
-
-/* ── IMAGE 1 — SVG, sin recorte ───────────────────────────────────────── */
-.img1-wrap {
-  width: 100%; max-width: 1160px; flex-shrink: 0;
-}
-.img1-wrap img {
-  width: 100%; height: auto; display: block;
-}
-
-/* ── CARDS ROW (Figma node 6:229) — flex gap-16 items-start w-full ────── */
-.dl-cards {
-  width: 100%;
-  display: flex; align-items: stretch; gap: 16px;
-}
-/* Each card (flex:1, bg:#111, p-28, flex-col gap-8 items-center) */
-.dl-card {
-  flex: 1 1 0; padding: 28px;
-  background: var(--surface);
-  display: flex; flex-direction: column;
-  align-items: center; gap: 8px;
-  border-left: 2px solid transparent;
-  transition: background .25s, border-left-color .25s, transform .25s;
-}
-.dl-card:hover { background: var(--bg3); border-left-color: var(--accent); transform: translateY(-2px) }
-/* Card title — w-full, 32px bold accent */
-.dl-card-title {
-  width: 100%;
-  font-size: 32px; font-weight: 700;
-  letter-spacing: -.02em; line-height: 1.1;
-  color: var(--accent);
-}
-/* Card body — color:var(--text) dark 14.8:1 ✓ light 15:1 ✓ */
-.dl-card-body {
-  width: 100%;
-  font-size: 14px; line-height: 1.75; color: var(--text);
-}
-.dl-card-body p { margin-bottom: 1em }
-.dl-card-body p:last-child { margin-bottom: 0 }
-
-
-/* ── IMAGEN FINAL — SVG sin recorte ───────────────────────────────────── */
-.dl-last-img {
-  width: 100%;
-}
-.dl-last-img img {
-  width: 100%; height: auto; display: block;
-}
-
-/* ── PROJECT NAV ──────────────────────────────────────────────────────── */
-.proj-nav {
-  display: grid; grid-template-columns: 1fr 1fr;
-  border-top: 1px solid var(--border);
-  width: 100%; margin-top: 80px;
-}
-.pn-item {
-  display: flex; flex-direction: column; gap: 6px;
-  padding: 32px 24px; cursor: none;
-  transition: background .2s;
-}
-.pn-item:hover { background: var(--surface) }
-.pn-item:hover .pn-title { color: var(--accent) }
-.pn-prev { padding-right: 64px; border-right: 1px solid var(--border) }
-.pn-next { padding-left: 64px; text-align: right }
-.pn-label {
-  font-family: 'Space Mono', monospace; font-size: 9px;
-  letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
-}
-.pn-num  { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: .12em }
-.pn-title{
-  font-size: clamp(22px, 3vw, 36px); font-weight: 700;
-  letter-spacing: -.02em; text-transform: uppercase;
-  line-height: 1; color: var(--text); transition: color .2s;
-}
-.pn-sub  { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .1em; color: var(--muted) }
-.pn-arrow{display:inline-block;transition:transform .25s cubic-bezier(.22,1,.36,1)}
-.pn-prev:hover .pn-arrow{transform:translateX(-5px)}
-.pn-next:hover .pn-arrow{transform:translateX(5px)}
-/* ── FOOTER ───────────────────────────────────────────────────────────── */
-footer {
-  padding: 28px 48px; border-top: 1px solid var(--border);
-  display: flex; justify-content: space-between; align-items: center;
-}
-.ft { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .08em; color: var(--muted) }
-
-/* ── SCROLL REVEAL ────────────────────────────────────────────────────── */
-.rev { opacity: 0; transform: translateY(32px); transition: opacity .75s cubic-bezier(.22,1,.36,1), transform .75s cubic-bezier(.22,1,.36,1) }
-.rev.vis { opacity: 1; transform: translateY(0) }
-.rev:nth-child(2){transition-delay:.08s}
-.rev:nth-child(3){transition-delay:.16s}
-.rev:nth-child(4){transition-delay:.24s}
-
-/* ── RESPONSIVE ───────────────────────────────────────────────────────── */
-@media(max-width:1300px){
-  .dl-wrap{padding:80px 48px 100px}
-  .img1-wrap{width:100%;height:auto}
-}
-@media(max-width:1050px){
-  .dl-title{font-size:clamp(52px,8vw,88px)}
-  .dl-cards{flex-direction:column}
-}
-/* HAMBURGER + MOBILE MENU */
-.nav-hamburger{display:none;width:48px;height:48px;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:50%;color:var(--muted);font-size:20px;line-height:1;transition:color .25s,border-color .25s}
-.nav-hamburger:hover{border-color:var(--accent);color:var(--accent)}
-.bottom-bar .nav-hamburger{display:flex;align-items:center;justify-content:center;padding:0;line-height:0}
-.bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:64px;z-index:200;background:var(--surface);border-top:1px solid var(--border);padding:0 24px;align-items:center;justify-content:space-between}
-.nav-mobile{display:none;position:fixed;bottom:64px;left:0;right:0;z-index:199;background:var(--surface);border-top:1px solid var(--border);flex-direction:column;padding:24px 24px 16px;max-height:calc(100dvh - 128px);overflow-y:auto;opacity:0;pointer-events:none;transform:translateY(100%);transition:transform .3s ease,opacity .3s ease}
-.nav-mobile.open{opacity:1;pointer-events:auto;transform:translateY(0)}
-.nav-mobile-link{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:16px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);min-height:52px;border-bottom:1px solid var(--border);transition:color .2s}
-.nav-mobile-link:hover{color:var(--text)}
-.nav-mobile-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 0 8px}
-@media(max-width:960px){
-  nav{padding:0 24px}
-  .nav-center{display:none}
-  .dl-wrap{padding:48px 24px 80px;gap:40px}
-  .dl-meta{gap:20px;flex-wrap:wrap}
-  .glow{left:50%;transform:translateX(-50%)}
-  .dl-title{font-size:clamp(40px,7vw,72px)}
-  .dl-desc{font-size:15px}
-  .mcase-grid{grid-template-columns:1fr 1fr}
-}
-@media(max-width:768px){
-  .dl-wrap{padding:36px 20px 60px;gap:32px}
-  .dl-meta{gap:14px}
-  .dl-meta-item{min-width:0;flex:1 1 40%}
-  .dl-cards{gap:12px}
-  .pn-prev{padding-right:32px}
-  .pn-next{padding-left:32px}
-  .pn-title{font-size:clamp(18px,5vw,28px)}
-  nav{display:none}
-  .bottom-bar{display:flex}
-  .nav-mobile{display:flex}
-  body{padding-top:0;padding-bottom:80px}
-  /* TYPOGRAPHY — mobile body text ≥16px */
-  p,li{font-size:16px;line-height:1.65}
-  .dl-desc,.mhead-desc,.dl-overview{font-size:16px;line-height:1.65}
-  .dl-card-body{font-size:14px;line-height:1.6}
-  /* TOUCH TARGETS */
-  .tag,.stag,.dl-tag,.mtag{min-height:44px;display:inline-flex;align-items:center;padding:10px 16px}
-  .nav-cv{min-height:44px;display:inline-flex;align-items:center}
-  .pn-item,.pn-prev,.pn-next{min-height:64px}
-  /* IMAGES */
-  img{max-width:100%;height:auto}
-  /* CURSOR — hide on touch */
-  #cursor-glass,#cursor-ring{display:none !important}
-}
-@media(max-width:600px){
-  .dl-title{font-size:clamp(36px,13vw,64px)}
-  .dl-card-title{font-size:18px}
-  .dl-card-body{font-size:13px}
-  .dl-tags{gap:6px}
-  footer{flex-direction:column;gap:12px;text-align:center}
-  .pn-prev{padding:20px 16px 20px 16px;border-right:none;border-bottom:1px solid var(--border)}
-  .pn-next{padding:20px 16px 20px 16px}
-  .proj-nav{flex-direction:column}
-  .pn-title{font-size:clamp(16px,6vw,24px)}
-  .mcase-grid{grid-template-columns:1fr}
-  .glow{width:280px;height:280px}
-}
 </style>
-<script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t)})();</script>
+<script>(function(){var t=localStorage.getItem('cf_tpl_theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
+<div id="cf-cur-dot" aria-hidden="true" style="position:fixed;top:0;left:0;width:8px;height:8px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);"></div>
+<div id="cf-cur-ring" aria-hidden="true" style="position:fixed;top:0;left:0;width:13px;height:13px;border-radius:50%;border:1.5px solid var(--border-strong);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:0;transition:width .24s var(--ease-ring),height .24s var(--ease-ring),opacity .2s;"></div>
 
-<div id="cursor-glass"></div>
-<div id="cursor-ring"></div>
+<div id="cf-sky" class="cf-sky" aria-hidden="true">
+  <div class="cf-sky__sun"></div>
+  <div class="cf-sky__moon"></div>
+  <div class="cf-sky__clouds" id="cf-clouds"></div>
+  <div class="cf-sky__stars" id="cf-stars"></div>
+  <div class="cf-shooting" style="top:16%;left:60%;"></div>
+</div>
 
-<!-- ── NAVBAR (Figma node 5:69) ─────────────────────────────────────────── -->
-<nav id="nav">
-  <a href="index.html" class="nav-logo">CF ✦</a>
-
-  <div class="nav-center">
-    <a href="index.html#works"   class="nav-link"><span class="nav-num">00</span> <span data-k="nav_works">Trabajos</span></a>
-    <a href="index.html#about"   class="nav-link"><span class="nav-num">01</span> <span data-k="nav_about">Sobre mí</span></a>
-    <a href="index.html#contacto" class="nav-link"><span class="nav-num">02</span> <span data-k="nav_contact">Contacto</span></a>
-  </div>
-
-  <div class="nav-right">
-    <a href="https://carolina-ferreyra.notion.site/Carolina-Ferreyra-04e3e8ecbef94b14a1a25b7388e45011" target="_blank" rel="noopener noreferrer" class="nav-cv" aria-label="Ver CV de Carolina Ferreyra (abre en nueva pestaña)">CV ↗</a>
-    <a href="https://www.linkedin.com/in/carolina-ferreyra/" target="_blank" rel="noopener noreferrer" class="nav-icon" aria-label="LinkedIn de Carolina Ferreyra (abre en nueva pestaña)">
-      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-    </a>
-    <button class="nav-icon" onclick="toggleTheme()" aria-label="Cambiar tema" id="theme-toggle">
-      <svg id="ico-dark" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      <svg id="ico-light" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+<nav id="cf-nav" aria-label="Main" style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px var(--gutter);background:color-mix(in srgb, var(--bg) 88%, transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);">
+  <a href="index.html" id="cf-logo" style="font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;">CF <span style="color:var(--accent);">✦</span></a>
+  <ul id="cf-nav-links" style="display:flex;gap:36px;list-style:none;">
+    <li><a class="cf-navlink" href="index.html#cf-works" style="font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:7px;transition:color .2s;"><span style="color:var(--accent);font-size:10px;">00</span> <span data-k="nav_works">Trabajos</span></a></li>
+    <li><a class="cf-navlink" href="index.html#cf-about" style="font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:7px;transition:color .2s;"><span style="color:var(--accent);font-size:10px;">01</span> <span data-k="nav_about">Sobre mí</span></a></li>
+    <li><a class="cf-navlink" href="index.html#cf-contact" style="font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:7px;transition:color .2s;"><span style="color:var(--accent);font-size:10px;">02</span> <span data-k="nav_contact">Contacto</span></a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:13px;">
+    <a class="cf-btn cf-btn--sm" href="https://carolina-ferreyra.notion.site" target="_blank" rel="noopener noreferrer"><span data-k="c_cv">Ver CV</span> ↗</a>
+    <button id="cf-theme" class="cf-daynight" aria-label="Cambiar tema día / noche" title="Día / Noche">
+      <span class="cf-daynight__deco" aria-hidden="true"><i class="c1"></i><i class="c2"></i><i class="s1"></i><i class="s2"></i><i class="s3"></i></span>
+      <span class="cf-daynight__thumb" aria-hidden="true"></span>
     </button>
-    <div class="nav-lang" role="group" aria-label="Seleccionar idioma">
-      <button id="btn-es" class="active" onclick="setLang('es')" aria-label="Español">ES</button>
-      <button id="btn-en" onclick="setLang('en')" aria-label="English">EN</button>
+    <div class="cf-seg" role="group" aria-label="Language">
+      <button id="cf-lang-es" class="cf-seg__btn is-active" data-lang="es">ES</button>
+      <button id="cf-lang-en" class="cf-seg__btn" data-lang="en">EN</button>
     </div>
   </div>
 </nav>
-<div class="bottom-bar" id="bottom-bar">
-  <a href="index.html" class="nav-logo">CF ✦</a>
-  <button class="nav-hamburger" id="nav-hamburger" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-mobile"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><line x1="2" y1="5" x2="16" y2="5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13" x2="16" y2="13"/></svg></button>
-</div>
-<div class="nav-mobile" id="nav-mobile">
-  <a href="index.html#works" class="nav-mobile-link"><span class="nav-num">00</span> <span data-k="nav_works">Trabajos</span></a>
-  <a href="index.html#about" class="nav-mobile-link"><span class="nav-num">01</span> <span data-k="nav_about">Sobre mí</span></a>
-  <a href="index.html#contacto" class="nav-mobile-link"><span class="nav-num">02</span> <span data-k="nav_contact">Contacto</span></a>
-  <div class="nav-mobile-actions">
-    <a href="https://carolina-ferreyra.notion.site/Carolina-Ferreyra-04e3e8ecbef94b14a1a25b7388e45011" target="_blank" rel="noopener noreferrer" class="nav-cv" aria-label="Ver CV (abre en nueva pestaña)">CV ↗</a>
-    <a href="https://www.linkedin.com/in/carolina-ferreyra/" target="_blank" rel="noopener noreferrer" class="nav-icon" aria-label="LinkedIn (abre en nueva pestaña)">
-      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-    </a>
-    <button class="nav-icon" onclick="toggleTheme()" id="theme-toggle-m" aria-label="Cambiar tema">
-      <svg id="ico-dark-m" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      <svg id="ico-light-m" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
-    <div class="nav-lang" role="group" aria-label="Seleccionar idioma">
-      <button id="btn-es-m" class="active" onclick="setLang('es')" aria-label="Español">ES</button>
-      <button id="btn-en-m" onclick="setLang('en')" aria-label="English">EN</button>
-    </div>
+
+<nav class="cf-botnav" aria-label="Acciones rápidas">
+  <a class="cf-botnav__item" href="https://carolina-ferreyra.notion.site" target="_blank" rel="noopener noreferrer">
+    <span class="cf-botnav__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6M9 17h6"></path></svg></span>
+    <span class="cf-botnav__lbl">CV</span>
+  </a>
+  <button class="cf-botnav__item cf-botnav__menu" id="cf-botmenu-btn" aria-expanded="false" aria-controls="cf-botmenu" aria-label="Menú">
+    <span class="cf-botnav__ico cf-botnav__ico--lg cf-botburger" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+  <a class="cf-botnav__item" href="https://www.linkedin.com/in/carolina-ferreyra/" target="_blank" rel="noopener noreferrer">
+    <span class="cf-botnav__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.4c0-1.3-.02-2.96-1.8-2.96-1.8 0-2.08 1.4-2.08 2.86V21H9z"></path></svg></span>
+    <span class="cf-botnav__lbl">LinkedIn</span>
+  </a>
+</nav>
+<div class="cf-botscrim" id="cf-botscrim" hidden></div>
+<div class="cf-botmenu" id="cf-botmenu" role="menu" aria-hidden="true">
+  <a class="cf-botmenu__link" role="menuitem" href="index.html#cf-works" data-k="nav_works">Trabajos</a>
+  <a class="cf-botmenu__link" role="menuitem" href="index.html#cf-about" data-k="nav_about">Sobre mí</a>
+  <a class="cf-botmenu__link" role="menuitem" href="index.html#cf-contact" data-k="nav_contact">Contacto</a>
+  <div class="cf-botmenu__lang cf-seg" role="group" aria-label="Idioma">
+    <button class="cf-seg__btn cf-blang is-active" data-lang="es">ES</button>
+    <button class="cf-seg__btn cf-blang" data-lang="en">EN</button>
   </div>
 </div>
 
-<!-- ── PAGE ──────────────────────────────────────────────────────────────── -->
-<div class="page">
-  <!-- Glow blob (Figma node 23:2035) -->
-  <div class="glow" aria-hidden="true"></div>
-
-  <!-- Main content column (Figma node 1:122) -->
-  <div class="dl-wrap">
-
-    <!-- ── HEADER (Figma node 1:123) ──────────────────────────────────── -->
-    <div class="dl-head rev">
-      <!-- Eyebrow (node 1:124) — centered -->
-      <p class="dl-eyebrow" data-k="eyebrow">— 01 · PRÁCTICA · PROYECTO PROFESIONAL</p>
-      <!-- Title (node 1:125) — full-width, left-aligned -->
-      <h1 class="dl-title">DATALOG</h1>
-      <!-- Description (node 1:126) — full-width, left-aligned -->
-      <p class="dl-desc" data-k="desc">Dashboard de consumo de servicios públicos — agua, gas y electricidad. Visualización de datos intuitiva con insights personalizados de sostenibilidad para traducir datos complejos en pantallas accesibles.</p>
-      <!-- Tags (node 1:127) — centered row -->
-      <div class="dl-tags">
-        <span class="dl-tag">UX DESIGN</span>
-        <span class="dl-tag">DATA VIZ</span>
-        <span class="dl-tag">DESIGN SYSTEM</span>
-        <span class="dl-tag">DASHBOARDS</span>
-        <span class="dl-tag">FIGMA</span>
-      </div>
-      <!-- Meta (node 1:138) — centered row, gap-48 -->
-      <div class="dl-meta">
-        <div class="dl-mi">
-          <span class="dl-ml" data-k="role_l">ROL</span>
-          <span class="dl-mv" data-k="role_v">UX Designer (Práctica)</span>
-        </div>
-        <div class="dl-mi">
-          <span class="dl-ml" data-k="ctx_l">CONTEXTO</span>
-          <span class="dl-mv" data-k="ctx_v">Proyecto Profesional</span>
-        </div>
-        <div class="dl-mi">
-          <span class="dl-ml" data-k="tools_l">HERRAMIENTAS</span>
-          <span class="dl-mv">Figma</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── OVERVIEW (Figma node 1:148) ────────────────────────────────── -->
-    <div class="dl-overview rev" style="transition-delay:.08s">
-      <!-- Label — centered -->
-      <p class="dl-ov-label">✦ OVERVIEW</p>
-      <!-- Text — full-width, left-aligned -->
-      <p class="dl-ov-text" data-k="overview">Plataforma web para monitorear y optimizar el consumo de servicios públicos — agua, gas y electricidad. El foco del proyecto fue traducir datos complejos en pantallas accesibles para todo tipo de usuarios, desde hogares hasta gestores de edificios.</p>
-    </div>
-
-    <!-- ── GALLERY (Figma node 1:151) ─────────────────────────────────── -->
-    <div class="dl-gallery">
-
-      <!-- Cards row (node 6:229) — 3 columns equal, gap-16 -->
-      <div class="dl-cards">
-        <div class="dl-card rev" style="transition-delay:.04s">
-          <h3 class="dl-card-title" data-k="c1t">Contexto</h3>
-          <div class="dl-card-body" data-k="c1b"><p>Datalog es una plataforma que permite monitorear y optimizar el consumo de servicios públicos — agua, gas y electricidad.</p><p>Al convertir datos complejos en visualizaciones claras, ayuda a tomar decisiones informadas y conservar recursos.</p><p>Ofrece insights personalizados en tiempo real para comparar el consumo con hogares similares y adoptar prácticas más sostenibles.</p></div>
-        </div>
-        <div class="dl-card rev" style="transition-delay:.12s">
-          <h3 class="dl-card-title" data-k="c2t">Desafío</h3>
-          <div class="dl-card-body" data-k="c2b"><p>Datalog busca consolidar todos los datos de consumo en una única plataforma adaptada a cada individuo.</p><p>El desafío fue visualizar información compleja de manera efectiva, personalizando al mismo tiempo las recomendaciones.</p><p>Buscamos formas innovadoras de presentar los datos para que los usuarios recibieran sugerencias según sus patrones únicos de consumo.</p></div>
-        </div>
-        <div class="dl-card rev" style="transition-delay:.20s">
-          <h3 class="dl-card-title" data-k="c3t">Objetivo</h3>
-          <div class="dl-card-body" data-k="c3b"><p>El objetivo principal fue transformar datos complejos en pantallas amigables. Para lograrlo nos enfocamos en:</p><p>— Analizar los datos para proporcionar insights valiosos.</p><p>— Ayudar a comprender el consumo y ofrecer sugerencias para actividades más sostenibles.</p><p>— Diseñar wireframes atractivos, accesibles e intuitivos para todo tipo de usuarios.</p></div>
-        </div>
-      </div>
-
-      <!-- Imagen final — sin recorte -->
-      <div class="dl-last-img rev" style="transition-delay:.1s">
-        <img src="image/datalog/datalog-system.png"
-             alt="Datalog — Design System completo" loading="lazy">
-      </div>
-
-    </div><!-- /dl-gallery -->
-
-    <!-- ── PROJECT NAV ──────────────────────────────────────────────────── -->
-    <div class="proj-nav">
-      <div class="pn-item pn-prev" style="opacity:.35;pointer-events:none" title="Primer proyecto">
-        <span class="pn-label" data-k="prev_l">← PROYECTO ANTERIOR</span>
-        <div><span class="pn-title" style="font-size:14px;color:var(--muted)">—</span></div>
-      </div>
-      <a href="welly.html" class="pn-item pn-next">
-        <span class="pn-label" data-k="next_l">PRÓXIMO PROYECTO →</span>
+<main id="cf-case" style="position:relative;z-index:1;">
+  <header class="cf-case-wrap">
+    <div class="cf-case-hero">
+      <p class="cf-case-kicker"><span id="cf-c-index">— 01</span> · <span id="cf-c-kicker"></span></p>
+      <h1 class="cf-case-title" id="cf-c-title">Project</h1>
+      <div class="cf-case-intro">
         <div>
-          <span class="pn-num">— 02</span>
-          <span class="pn-title"> Welly</span>
+          <p class="cf-case-lede" id="cf-c-lede"></p>
+          <div class="cf-case-tags" id="cf-c-tags" aria-hidden="true"></div>
         </div>
-        <span class="pn-sub">E-Commerce · UX/UI · ELISAVA</span>
-      </a>
+        <div class="cf-case-meta" id="cf-c-meta"></div>
+      </div>
     </div>
+  </header>
 
-  </div><!-- /dl-wrap -->
-</div><!-- /page -->
+  <section class="cf-case-wrap">
+    <div class="cf-case-overview">
+      <span class="cf-case-overview__tag">✦ <span data-k="overview">Overview</span></span>
+      <p class="cf-case-overview__text" id="cf-c-overview"></p>
+    </div>
+  </section>
 
-<footer>
-  <span class="ft">✸ Carolina Ferreyra — 2026</span>
-  <span class="ft">Diseñado con ✦</span>
+  <section class="cf-case-wrap">
+    <div class="cf-case-body" id="cf-c-blocks"></div>
+  </section>
+
+  <nav class="cf-case-wrap" aria-label="Project navigation">
+    <div class="cf-case-foot" id="cf-c-foot"></div>
+  </nav>
+</main>
+
+<div id="cf-lightbox" class="cf-lightbox" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+  <button class="cf-lightbox__close" id="cf-lb-close" aria-label="Cerrar">✕</button>
+  <button class="cf-lightbox__nav cf-lightbox__nav--prev" id="cf-lb-prev" aria-label="Anterior">‹</button>
+  <figure class="cf-lightbox__stage">
+    <img id="cf-lb-img" alt="">
+    <figcaption class="cf-lightbox__cap" id="cf-lb-cap"></figcaption>
+  </figure>
+  <button class="cf-lightbox__nav cf-lightbox__nav--next" id="cf-lb-next" aria-label="Siguiente">›</button>
+  <span class="cf-lightbox__count" id="cf-lb-count"></span>
+</div>
+
+<footer style="position:relative;z-index:1;padding:30px var(--gutter);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+  <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--text-muted);"><span aria-hidden="true">✸ </span>Carolina Ferreyra © 2026</span>
+  <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--text-muted);" data-k="f_made">Diseñado con ✦</span>
 </footer>
-
 <script>
-// ── THEME ──────────────────────────────────────────────────────────────
-let theme = localStorage.getItem('theme') || 'dark';
-(function(){
-  if(theme==='light'){
-    document.getElementById('ico-dark').style.display='none';
-    document.getElementById('ico-light').style.display='';
-    var dm=document.getElementById('ico-dark-m'),lm=document.getElementById('ico-light-m');
-    if(dm)dm.style.display='none'; if(lm)lm.style.display='';
+class Component {
+  renderVals() { return {}; }
+
+  componentDidMount() {
+    this.props = {};
+    document.documentElement.style.background = 'var(--bg)';
+    document.body.style.background = 'var(--bg)';
+    document.body.style.color = 'var(--text)';
+    this.reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const qs = new URLSearchParams(location.search);
+    this.id = 'datalog';
+    this.lang = qs.get('lang') || localStorage.getItem('cf_tpl_lang') || 'es';
+    this.theme = qs.get('theme') || localStorage.getItem('cf_tpl_theme') || 'dark';
+    this.CASES = window.CF_CASES || {};
+    this.NAV = { es:{nav_works:'Trabajos',nav_about:'Sobre mí',nav_contact:'Contacto',c_cv:'Ver CV',overview:'Overview',f_made:'Diseñado con ✦'},
+                 en:{nav_works:'Works',nav_about:'About',nav_contact:'Contact',c_cv:'View CV',overview:'Overview',f_made:'Designed with ✦'} };
+    this.applyAccent();
+    this.applyTheme(this.theme);
+    this.initSky();
+    this.render();
+    this.applyLang(this.lang);
+    this.bindToggles();
+    this.initBotnav();
+    this.initCursor();
+    this.initNav();
+    this.initLightbox();
   }
-})();
-function toggleTheme() {
-  theme = theme === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('theme', theme);
-  document.documentElement.setAttribute('data-theme', theme);
-  document.getElementById('ico-dark').style.display  = theme === 'dark'  ? '' : 'none';
-  document.getElementById('ico-light').style.display = theme === 'light' ? '' : 'none';
-  var dm=document.getElementById('ico-dark-m'),lm=document.getElementById('ico-light-m');
-  if(dm)dm.style.display=theme==='dark'?'':'none';
-  if(lm)lm.style.display=theme==='light'?'':'none';
-}
 
-// ── LANG ───────────────────────────────────────────────────────────────
-const T = {
-  es:{
-    nav_works:'Trabajos', nav_about:'Sobre mí', nav_contact:'Contacto',
-    eyebrow:'— 01 · PRÁCTICA · PROYECTO PROFESIONAL',
-    desc:'Dashboard de consumo de servicios públicos — agua, gas y electricidad. Visualización de datos intuitiva con insights personalizados de sostenibilidad para traducir datos complejos en pantallas accesibles.',
-    role_l:'ROL', ctx_l:'CONTEXTO', tools_l:'HERRAMIENTAS',
-    role_v:'UX Designer (Práctica)', ctx_v:'Proyecto Profesional',
-    overview:'Plataforma web para monitorear y optimizar el consumo de servicios públicos — agua, gas y electricidad. El foco del proyecto fue traducir datos complejos en pantallas accesibles para todo tipo de usuarios, desde hogares hasta gestores de edificios.',
-    c1t:'Contexto',
-    c1b:'<p>Datalog es una plataforma que permite monitorear y optimizar el consumo de servicios públicos — agua, gas y electricidad.</p><p>Al convertir datos complejos en visualizaciones claras, ayuda a tomar decisiones informadas y conservar recursos.</p><p>Ofrece insights personalizados en tiempo real para comparar el consumo con hogares similares y adoptar prácticas más sostenibles.</p>',
-    c2t:'Desafío',
-    c2b:'<p>Datalog busca consolidar todos los datos de consumo en una única plataforma adaptada a cada individuo.</p><p>El desafío fue visualizar información compleja de manera efectiva, personalizando al mismo tiempo las recomendaciones.</p><p>Buscamos formas innovadoras de presentar los datos para que los usuarios recibieran sugerencias según sus patrones únicos de consumo.</p>',
-    c3t:'Objetivo',
-    c3b:'<p>El objetivo principal fue transformar datos complejos en pantallas amigables. Para lograrlo nos enfocamos en:</p><p>— Analizar los datos para proporcionar insights valiosos.</p><p>— Ayudar a comprender el consumo y ofrecer sugerencias para actividades más sostenibles.</p><p>— Diseñar wireframes atractivos, accesibles e intuitivos para todo tipo de usuarios.</p>',
-    prev_l:'← PROYECTO ANTERIOR', next_l:'PRÓXIMO PROYECTO →'
-  },
-  en:{
-    nav_works:'Works', nav_about:'About', nav_contact:'Contact',
-    eyebrow:'— 01 · INTERNSHIP · PROFESSIONAL PROJECT',
-    desc:'Public utility consumption dashboard — water, gas and electricity. Intuitive data visualization with personalized sustainability insights to translate complex data into accessible screens.',
-    role_l:'ROLE', ctx_l:'CONTEXT', tools_l:'TOOLS',
-    role_v:'UX Designer (Internship)', ctx_v:'Professional Project',
-    overview:'Web platform to monitor and optimize public utility consumption — water, gas and electricity. The project focused on translating complex data into accessible screens for all users, from households to building managers.',
-    c1t:'Context',
-    c1b:'<p>Datalog is a platform that enables users to track and optimize their consumption of public utilities like water, gas, and electricity.</p><p>By converting complex data into clear visuals, Datalog helps users make informed choices, minimize waste, and conserve resources.</p><p>The platform offers tailored insights based on real-time data, allowing users to monitor their usage, compare it with similar households, and embrace more sustainable practices.</p>',
-    c2t:'Challenge',
-    c2b:'<p>Datalog aims to consolidate all public user consumption data onto a single platform tailored for each individual.</p><p>Our challenge was to effectively visualize this intricate user information while also personalizing the recommendations.</p><p>We sought innovative ways to present the data, ensuring that users receive relevant suggestions based on their unique consumption patterns, enhancing their overall experience on the platform.</p>',
-    c3t:'Objective',
-    c3b:"<p>Our project's main goal was to transform complex data into user-friendly screens. To achieve this, we focused on:</p><p>— Analyzing user data to provide valuable insights.</p><p>— Assisting users in understanding their consumption and offering tailored suggestions for eco-friendly activities.</p><p>— Designing appealing, accessible, and intuitive wireframes for all users.</p>",
-    prev_l:'← PREVIOUS PROJECT', next_l:'NEXT PROJECT →'
-  }
-};
-
-function setLang(l) {
-  localStorage.setItem('lang', l);
-  document.documentElement.lang = l;
-  document.getElementById('btn-es').className = l === 'es' ? 'active' : '';
-  document.getElementById('btn-en').className = l === 'en' ? 'active' : '';
-  var mes=document.getElementById('btn-es-m'),men=document.getElementById('btn-en-m');
-  if(mes)mes.className=l==='es'?'active':'';
-  if(men)men.className=l==='en'?'active':'';
-  document.querySelectorAll('[data-k]').forEach(el => {
-    const k = el.dataset.k;
-    if (T[l][k] !== undefined) el.innerHTML = T[l][k];
-  });
-}
-
-// ── CURSOR — idéntico a portfolio.html ─────────────────────────────────
-(function initCursor() {
-  const dot  = document.getElementById('cursor-glass');
-  const ring = document.getElementById('cursor-ring');
-  let mx = innerWidth / 2, my = innerHeight / 2;
-  let dx = mx, dy = my, rx = mx, ry = my;
-
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-
-  (function loop() {
-    dx += (mx - dx) * .24; dy += (my - dy) * .24;
-    rx += (mx - rx) * .13; ry += (my - ry) * .13;
-    dot.style.left  = dx + 'px'; dot.style.top  = dy + 'px';
-    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-    requestAnimationFrame(loop);
-  })();
-
-  const SEL = 'a,button,.dl-card,.nav-logo,.nav-icon,.pn-item,[onclick]';
-  function on()  { ring.classList.add('on');    document.body.classList.add('cactive'); }
-  function off() { ring.classList.remove('on'); document.body.classList.remove('cactive'); }
-  function bind(el) {
-    if (el._cb) return; el._cb = true;
-    el.addEventListener('mouseenter', on);
-    el.addEventListener('mouseleave', off);
-  }
-  document.querySelectorAll(SEL).forEach(bind);
-  new MutationObserver(ms => {
-    ms.forEach(m => m.addedNodes.forEach(n => {
-      if (!(n instanceof Element)) return;
-      if (n.matches && n.matches(SEL)) bind(n);
-      n.querySelectorAll && n.querySelectorAll(SEL).forEach(bind);
-    }));
-  }).observe(document.body, { childList: true, subtree: true });
-})();
-
-// ── SCROLL REVEAL ──────────────────────────────────────────────────────
-const revObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('vis'); revObs.unobserve(e.target); }
-  });
-}, { threshold: 0.08 });
-document.querySelectorAll('.rev').forEach(el => revObs.observe(el));
-
-// ── INIT ───────────────────────────────────────────────────────────────
-setLang(localStorage.getItem('lang') || 'es');
-
-// ── PAGE TRANSITIONS ──────────────────────────────────────────────────────
-(function initPageTransitions(){
-  document.body.classList.add('loaded');
-  document.querySelectorAll('a[href]').forEach(a => {
-    const href = a.getAttribute('href');
-    if (!href || href.startsWith('#') || href.startsWith('mailto') || href.startsWith('http') || a.target === '_blank') return;
-    a.addEventListener('click', function(e){
-      e.preventDefault();
-      document.body.classList.remove('loaded');
-      document.body.classList.add('leaving');
-      setTimeout(() => { window.location.href = href; }, 260);
+  bindThumbs() {
+    document.querySelectorAll('.cf-thumb, .cf-3d-expand, .cf-browser__expand, .cf-screen').forEach(btn => {
+      if (btn._lb) return; btn._lb = true;
+      btn.addEventListener('click', () => this.openLightbox(+btn.dataset.idx));
     });
-  });
-})();
+    this.init3D();
+    this.initDeckCompare();
+    this.initCompareHint();
+    this.initBrowserSvg();
+    this.initParallax();
+    this.initPhones();
+    this.initDesktop();
+  }
 
-// ── HAMBURGER MENU ────────────────────────────────────────────────────────
-(function initHamburger(){
-  var btn=document.getElementById('nav-hamburger');
-  var menu=document.getElementById('nav-mobile');
-  if(!btn||!menu)return;
-  var icoMenu='<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><line x1="2" y1="5" x2="16" y2="5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13" x2="16" y2="13"/></svg>';
-  var icoClose='<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></svg>';
-  function closeMenu(){menu.classList.remove('open');btn.setAttribute('aria-expanded','false');btn.innerHTML=icoMenu;btn.setAttribute('aria-label','Abrir menú')}
-  function openMenu(){menu.classList.add('open');btn.setAttribute('aria-expanded','true');btn.innerHTML=icoClose;btn.setAttribute('aria-label','Cerrar menú')}
-  btn.addEventListener('click',function(){menu.classList.contains('open')?closeMenu():openMenu()});
-  menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',closeMenu)});
-  document.addEventListener('click',function(e){if(menu.classList.contains('open')&&!menu.contains(e.target)&&!btn.contains(e.target))closeMenu()});
-})();
+  // Figma stripped the embedded rasters from these SVG exports — fill those
+  // image regions with a soft brand-tinted placeholder so they don't read as broken.
+  fillSvgImages(txt) {
+    const grad = '<defs><linearGradient id="cf-imgfill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dcefe8"/><stop offset="1" stop-color="#f6e2ee"/></linearGradient></defs>';
+    txt = txt.replace(/<svg([^>]*)>/, (m, a) => `<svg${a}>${grad}`);
+    txt = txt.replace(/url\(#pattern[0-9A-Za-z_]+\)/g, 'url(#cf-imgfill)');
+    return txt;
+  }
+
+  initPhones() {
+    document.querySelectorAll('.cf-phone__page').forEach((page) => {
+      if (page._init) return; page._init = true;
+      if (this.reduce) return;
+      const screen = page.closest('.cf-phone__scroll') || page.parentElement;
+      const getMax = () => Math.max(0, page.offsetHeight - screen.clientHeight) * 0.92; // stop short of the footer
+      const start = () => this.attachScroll(screen, page, getMax, { secs: 13 });
+      if (page.complete && page.naturalHeight) start();
+      else page.addEventListener('load', start, { once: true });
+    });
+  }
+
+  // Shared auto-scroll for the browser / phone mockups. Waits `startDelay` of no
+  // interaction, then gently ping-pongs the page. Hovering freezes it and lets the
+  // viewer scroll manually (wheel / touch); leaving re-arms the idle timer.
+  attachScroll(el, mover, getMax, opts) {
+    opts = opts || {};
+    const secs = opts.secs || 18, startDelay = opts.startDelay || 4000, dwell = opts.dwell || 1400;
+    const onFrame = opts.onFrame || null;
+    let pos = 0, dir = 1, hovering = false, dwellUntil = 0, last = performance.now(), lastInteract = performance.now();
+    el.addEventListener('mouseenter', () => { hovering = true; });
+    el.addEventListener('mouseleave', () => { hovering = false; lastInteract = performance.now(); });
+    el.addEventListener('wheel', (e) => {
+      const max = getMax(); if (!max) return;
+      if ((e.deltaY < 0 && pos <= 0.0005) || (e.deltaY > 0 && pos >= 0.9995)) return; // at an edge — let the page scroll through
+      e.preventDefault();
+      pos = Math.max(0, Math.min(1, pos + e.deltaY / max));
+      lastInteract = performance.now();
+    }, { passive: false });
+    let ty = 0;
+    el.addEventListener('touchstart', (e) => { ty = e.touches[0].clientY; lastInteract = performance.now(); }, { passive: true });
+    el.addEventListener('touchmove', (e) => {
+      const max = getMax(); if (!max) return;
+      const cy = e.touches[0].clientY; pos = Math.max(0, Math.min(1, pos + (ty - cy) / max)); ty = cy;
+      lastInteract = performance.now();
+    }, { passive: true });
+    const tick = (now) => {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if (!el.dataset.freeze && !hovering && (now - lastInteract > startDelay) && now >= dwellUntil) {
+        pos += dir * dt / secs;
+        if (pos >= 1) { pos = 1; dir = -1; dwellUntil = now + dwell; }
+        else if (pos <= 0) { pos = 0; dir = 1; dwellUntil = now + dwell; }
+      }
+      const max = getMax();
+      mover.style.transform = `translateY(${(-pos * max).toFixed(1)}px)`;
+      if (onFrame) onFrame(pos, max);
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  // Turn the low-fi → hi-fi deck into a draggable before/after slider. The
+  // ambient auto-wipe runs until the user grabs it, then they control the split.
+  initDeckCompare() {
+    document.querySelectorAll('.cf-deck, .cf-pcompare').forEach(deck => {
+      if (deck._cmp) return; deck._cmp = true;
+      const view = deck.querySelector('.cf-deck__view, .cf-pcompare__view');
+      if (!view) return;
+      const set = (clientX) => {
+        const r = view.getBoundingClientRect();
+        let p = (clientX - r.left) / r.width * 100;
+        p = Math.max(2, Math.min(98, p));
+        deck.style.setProperty('--split', p + '%');
+      };
+      const down = (e) => {
+        deck.classList.add('is-grab');
+        set(e.clientX);
+        const move = (ev) => set(ev.clientX);
+        const up = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); };
+        addEventListener('pointermove', move);
+        addEventListener('pointerup', up);
+        e.preventDefault();
+      };
+      view.addEventListener('pointerdown', down);
+    });
+  }
+
+  // Brief idle nudge so the viewer learns the divider is draggable. Plays once
+  // per slider when it scrolls into view; skipped if the user already grabbed it.
+  initCompareHint() {
+    if (this.reduce) return;
+    if (this._hintIO) this._hintIO.disconnect();
+    this._hintIO = new IntersectionObserver((ents) => {
+      ents.forEach(e => {
+        if (!e.isIntersecting || e.target._hinted) return;
+        e.target._hinted = true;
+        if (e.target.classList.contains('is-grab')) return;
+        e.target.classList.add('is-hint');
+        e.target.addEventListener('animationend', () => e.target.classList.remove('is-hint'), { once: true });
+      });
+    }, { threshold: 0.55 });
+    document.querySelectorAll('.cf-pcompare').forEach(el => this._hintIO.observe(el));
+  }
+
+  initDesktop() {
+    document.querySelectorAll('.cf-deck__view[data-dsvg]').forEach(view => {
+      if (view._init) return; view._init = true;
+      fetch(view.dataset.dsvg).then(r => r.text()).then(txt => {
+        txt = this.fillSvgImages(txt);
+        const base = view.querySelector('.cf-deck__base'), lofi = view.querySelector('.cf-deck__lofi');
+        if (base && !view.dataset.hifi) base.innerHTML = txt;
+        if (lofi) lofi.innerHTML = txt;
+        [base, lofi].forEach(l => { const s = l && l.querySelector('svg'); if (s) { s.removeAttribute('width'); s.removeAttribute('height'); } });
+      }).catch(() => {});
+    });
+  }
+
+  initParallax() {
+    if (this._plxInit || this.reduce) return; this._plxInit = true;
+    const cards = [...document.querySelectorAll('.cf-case-block')];
+    const txt = document.querySelector('.cf-case-overview__text');
+    const tag = document.querySelector('.cf-case-overview__tag');
+    cards.forEach(c => c.style.willChange = 'transform');
+    [txt, tag].forEach(e => { if (e) e.style.willChange = 'transform'; });
+    const speeds = [0, 0.055, 0.028];
+    const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const mid = innerHeight / 2;
+      cards.forEach((c, i) => {
+        const sp = speeds[i % 3];
+        if (!sp) { c.style.transform = ''; return; }
+        const r = c.getBoundingClientRect();
+        const delta = (r.top + r.height / 2) - mid;
+        c.style.transform = `translateY(${clamp(-delta * sp, 70).toFixed(1)}px)`;
+      });
+      if (txt) { const r = txt.getBoundingClientRect(); const d = (r.top + r.height / 2) - mid; const o = clamp(-d * 0.16, 90); txt.style.transform = `translateY(${o.toFixed(1)}px)`; if (tag) tag.style.transform = `translateY(${(o * 0.55).toFixed(1)}px)`; }
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll, { passive: true });
+    update();
+  }
+
+  async initBrowserSvg() {
+    const pages = document.querySelectorAll('.cf-browser__page[data-svg]');
+    for (const page of pages) {
+      if (page._svgInit) continue; page._svgInit = true;
+      try {
+        const txt = await (await fetch(page.dataset.svg)).text();
+        page.innerHTML = txt;
+      } catch (e) { continue; }
+      const svg = page.querySelector('svg');
+      if (!svg) continue;
+      svg.removeAttribute('width'); svg.removeAttribute('height');
+
+      // Re-insert the Barcelona map (Figma dropped the embedded raster) as a layer over the empty map area
+      if (page.dataset.map) {
+        const layer = document.createElement('div');
+        layer.className = 'cf-map-layer';
+        layer.style.cssText = 'left:24.844%;top:10.829%;width:72.891%;height:30.146%;';
+        const mimg = document.createElement('img');
+        mimg.src = page.dataset.map; mimg.alt = '';
+        layer.appendChild(mimg);
+        page.appendChild(layer);
+      }
+      const paths = svg.querySelectorAll('path');
+      const view = page.closest('.cf-browser__view');
+      const thumb = view.querySelector('.cf-browser__scrollbar i');
+      const card = page.closest('.cf-browser');
+
+      // identify chart elements by document order
+      const barIdx = [560,562,564,566,568,570,572,574,576,578, 598,600,602,604,606,608,610,612,614,616];
+      const lineIdx = [684,692,700,708,716,723,731,739,769];
+      const bars = barIdx.map(i => paths[i]).filter(Boolean);
+      const lines = lineIdx.map(i => paths[i]).filter(Boolean);
+      bars.forEach(b => { b.style.transformBox = 'fill-box'; b.style.transformOrigin = 'bottom'; b.style.transform = 'scaleY(0)'; });
+      const lineLens = lines.map(l => { let L = 0; try { L = l.getTotalLength(); } catch (_) {} l.style.strokeDasharray = L; l.style.strokeDashoffset = L; return L; });
+
+      if (this.reduce) {
+        bars.forEach(b => b.style.transform = 'scaleY(1)');
+        lines.forEach(l => l.style.strokeDashoffset = 0);
+        continue;
+      }
+
+      const VB = 2547, clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+      const easeInOut = x => x < 0.5 ? 2*x*x : 1 - Math.pow(-2*x+2,2)/2;
+      // scroll position 0..1 over the cycle (top → bottom → top with dwells)
+      const sOf = t => {
+        if (t < 0.06) return 0;
+        if (t < 0.46) return easeInOut((t-0.06)/0.40);
+        if (t < 0.56) return 1;
+        if (t < 0.96) return 1 - easeInOut((t-0.56)/0.40);
+        return 0;
+      };
+      const getMax = () => { const Hp = page.offsetHeight || (view.clientWidth * VB / 1590); return Math.max(0, Hp - view.clientHeight); };
+      this.attachScroll(view, page, getMax, { secs: 20, onFrame: (pos, maxPx) => {
+        if (thumb) thumb.style.top = (pos * 64).toFixed(2) + '%';
+        const Hp = page.offsetHeight || (view.clientWidth * VB / 1590), Hv = view.clientHeight;
+        const reveal = (cVb) => clamp((Hv - ((cVb/VB)*Hp - pos*maxPx)) / (Hv*0.55), 0, 1);
+        const pb = reveal(1255), pl = reveal(1670);
+        bars.forEach((b,i) => { const d = i*0.025; const v = clamp((pb-d)/(1-d||1),0,1); b.style.transform = `scaleY(${easeInOut(v).toFixed(3)})`; });
+        lines.forEach((l,i) => { const d = i*0.04; const v = clamp((pl-d)/(1-d||1),0,1); l.style.strokeDashoffset = (lineLens[i]*(1-easeInOut(v))).toFixed(1); });
+      }});
+    }
+  }
+
+  init3D() {
+    document.querySelectorAll('.cf-case-showcase').forEach(sc => {
+      if (sc._3d) return; sc._3d = true;
+      const obj = sc.querySelector('.cf-3d-obj');
+      if (!obj) return;
+      const reduce = this.reduce;
+      let rx = 0, ry = 0, trx = 0, try_ = 0, raf = null, dragging = false, lx = 0, ly = 0;
+      const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+      const paint = () => { obj.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`; };
+      const loop = () => {
+        rx += (trx - rx) * 0.12; ry += (try_ - ry) * 0.12; paint();
+        if (dragging || Math.abs(trx - rx) > 0.04 || Math.abs(try_ - ry) > 0.04) raf = requestAnimationFrame(loop);
+        else raf = null;
+      };
+      const kick = () => { if (reduce) { rx = trx; ry = try_; paint(); return; } if (!raf) raf = requestAnimationFrame(loop); };
+      sc.addEventListener('pointerdown', e => {
+        if (e.target.closest('.cf-3d-expand')) return;
+        dragging = true; lx = e.clientX; ly = e.clientY; sc.classList.add('is-grab');
+        try { sc.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+      sc.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY;
+        try_ = clamp(try_ + dx * 0.45, 40); trx = clamp(trx - dy * 0.45, 26); kick();
+      });
+      const end = () => { dragging = false; sc.classList.remove('is-grab'); };
+      sc.addEventListener('pointerup', end);
+      sc.addEventListener('pointercancel', end);
+      sc.addEventListener('mousemove', e => {
+        if (dragging) return;
+        const r = sc.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+        try_ = px * 26; trx = -py * 15; kick();
+      });
+      sc.addEventListener('mouseleave', () => { if (dragging) return; trx = 0; try_ = 0; kick(); });
+      paint();
+    });
+  }
+
+  initLightbox() {
+    if (this._lbInit) return; this._lbInit = true;
+    const lb = document.getElementById('cf-lightbox');
+    document.getElementById('cf-lb-close').addEventListener('click', () => this.closeLightbox());
+    document.getElementById('cf-lb-prev').addEventListener('click', () => this.stepLightbox(-1));
+    document.getElementById('cf-lb-next').addEventListener('click', () => this.stepLightbox(1));
+    lb.addEventListener('click', e => { if (e.target === lb) this.closeLightbox(); });
+    addEventListener('keydown', e => {
+      if (!lb.classList.contains('is-open')) return;
+      if (e.key === 'Escape') this.closeLightbox();
+      else if (e.key === 'ArrowRight') this.stepLightbox(1);
+      else if (e.key === 'ArrowLeft') this.stepLightbox(-1);
+    });
+  }
+
+  openLightbox(idx) {
+    if (!this.imgs || !this.imgs.length) return;
+    this.lbIdx = idx;
+    this.paintLightbox();
+    document.getElementById('cf-lightbox').classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  stepLightbox(dir) {
+    const n = this.imgs.length;
+    this.lbIdx = (this.lbIdx + dir + n) % n;
+    this.paintLightbox();
+  }
+  paintLightbox() {
+    const it = this.imgs[this.lbIdx];
+    document.getElementById('cf-lb-img').src = it.src;
+    document.getElementById('cf-lb-img').alt = it.alt || '';
+    document.getElementById('cf-lb-cap').textContent = it.alt || '';
+    document.getElementById('cf-lb-count').textContent = (this.lbIdx + 1) + ' / ' + this.imgs.length;
+    const multi = this.imgs.length > 1;
+    document.getElementById('cf-lb-prev').style.display = multi ? '' : 'none';
+    document.getElementById('cf-lb-next').style.display = multi ? '' : 'none';
+    document.getElementById('cf-lb-count').style.display = multi ? '' : 'none';
+  }
+  closeLightbox() {
+    document.getElementById('cf-lightbox').classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  applyAccent() {
+    const a = this.props.accent;
+    // Only override when the user actually customised the accent — keep the
+    // per-theme tokens otherwise (light mode keeps its success-blue).
+    if (a && Array.isArray(a) && a[0] && a[0].toLowerCase() !== '#c8ff4c') {
+      document.documentElement.style.setProperty('--lime-500', a[0]);
+      if (a[1]) document.documentElement.style.setProperty('--mint-500', a[1]);
+    }
+  }
+
+  data() { return this.CASES[this.id] || this.CASES.datalog; }
+
+  render() {
+    const d = this.data(); if (!d) return;
+    const L = this.lang;
+    document.getElementById('cf-c-index').textContent = '— ' + d.index;
+    document.getElementById('cf-c-title').textContent = d.title;
+    document.title = d.title + ' — Carolina Ferreyra';
+    // tags
+    document.getElementById('cf-c-tags').innerHTML = d.tags.map(t => `<span class="cf-tag">${t}</span>`).join('');
+    // meta
+    document.getElementById('cf-c-meta').innerHTML = d.meta.map(m => `
+      <div class="cf-case-meta__row"><span class="cf-case-meta__l">${m.l[L]}</span><span class="cf-case-meta__v">${m.v[L]}</span></div>`).join('');
+    // blocks — text in glass cards; consecutive images grouped into a thumbnail gallery (→ lightbox)
+    this.imgs = [];
+    d.blocks.forEach(b => {
+      if (b.browser && b.full) this.imgs.push({ src: b.browser, alt: (b.alt && b.alt[L]) || '' });
+      else if (b.browser) this.imgs.push({ src: b.browser, alt: (b.alt && b.alt[L]) || '' });
+      else if (b.grid) b.grid.forEach(g => this.imgs.push({ src: g.src, alt: (g.label && g.label[L]) || '' }));
+      else if (b.img) this.imgs.push({ src: b.img, alt: (b.alt && b.alt[L]) || '' });
+    });
+    const blocks = d.blocks;
+    let out = '', i = 0, imgIdx = 0;
+    while (i < blocks.length) {
+      const b = blocks[i];
+      if (b.phones) {
+        const pos = ['cf-phone--l', 'cf-phone--c', 'cf-phone--r'];
+        const dels = ['0s', '-2.2s', '-4.4s'];
+        out += '<div class="cf-phones">';
+        b.phones.forEach((ph, k) => {
+          out += `<div class="cf-phone ${pos[k] || ''}"><div class="cf-phone__bezel" style="--del:${dels[k] || '0s'}"><div class="cf-phone__screen"><img class="cf-phone__page" src="${ph.src}" alt="" loading="lazy"><span class="cf-phone__glare"></span></div></div></div>`;
+        });
+        out += '</div>';
+        i++;
+      } else if (b.desktop) {
+        out += `<div class="cf-deck"><div class="cf-deck__frame"><div class="cf-deck__chrome"><div class="cf-deck__dots"><i></i><i></i><i></i></div><div class="cf-deck__url">${b.url || ''}</div></div><div class="cf-deck__view" data-dsvg="${b.desktop}"${b.hifi ? ` data-hifi="${b.hifi}"` : ''}><div class="cf-deck__layer cf-deck__base">${b.hifi ? `<img src="${b.hifi}" alt="${(b.alt && b.alt[L]) || ''}" style="display:block;width:100%">` : ''}</div><div class="cf-deck__layer cf-deck__lofi"></div><div class="cf-deck__divider"><i></i><i></i></div><span class="cf-deck__tag cf-deck__tag--lo">${b.lo ? b.lo[L] : 'Low-fi'}</span><span class="cf-deck__tag cf-deck__tag--hi">${b.hi ? b.hi[L] : 'Hi-fi'}</span></div></div>${b.caption ? `<span class="cf-phone__label" style="margin-top:18px">${b.caption[L]}</span>` : ''}</div>`;
+        i++;
+      } else if (b.browser && b.full) {
+        const idx = imgIdx++;
+        const url = b.url || '';
+        out += `<div class="cf-browser cf-browser--full"><div class="cf-browser__frame"><div class="cf-browser__chrome"><div class="cf-browser__dots"><i></i><i></i><i></i></div><div class="cf-browser__url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>${url}</div></div><div class="cf-browser__view"><img class="cf-browser__page" src="${b.browser}" alt="${(b.alt && b.alt[L]) || ''}" loading="lazy"></div></div><button class="cf-browser__expand" data-idx="${idx}" aria-label="Ampliar imagen">⤢</button></div>`;
+        i++;
+      } else if (b.grid) {
+        out += '<div class="cf-screengrid">';
+        b.grid.forEach(g => {
+          const idx = imgIdx++;
+          out += `<button class="cf-screen" data-idx="${idx}" aria-label="Ampliar imagen"><span class="cf-screen__phone"><img src="${g.src}" alt="${(g.label && g.label[L]) || ''}" loading="lazy"></span>${g.label ? `<span class="cf-screen__label">${g.label[L]}</span>` : ''}</button>`;
+        });
+        out += '</div>';
+        i++;
+      } else if (b.compares || b.compare) {
+        const list = b.compares || [b.compare];
+        const loD = L === 'es' ? 'Baja' : 'Low-fi', hiD = L === 'es' ? 'Alta' : 'Hi-fi';
+        out += `<div class="cf-pcompareset"><div class="cf-pcompareset__grid${list.length === 1 ? ' cf-pcompareset__grid--one' : ''}">`;
+        list.forEach(c => {
+          const loT = c.loLabel ? c.loLabel[L] : loD, hiT = c.hiLabel ? c.hiLabel[L] : hiD;
+          out += `<div class="cf-pcompare" role="group" aria-label="${(c.alt && c.alt[L]) || ''} — ${loT} / ${hiT}"><div class="cf-pcompare__phone"><div class="cf-pcompare__view"><div class="cf-pcompare__layer cf-pcompare__base"><img src="${c.hi}" alt="${(c.alt && c.alt[L]) || ''}" loading="lazy" decoding="async"></div><div class="cf-pcompare__layer cf-pcompare__lofi"><img src="${c.lo}" alt="" loading="lazy" decoding="async"></div><div class="cf-pcompare__divider" aria-hidden="true"><i></i><i></i></div><span class="cf-pcompare__tag cf-pcompare__tag--lo" aria-hidden="true">${loT}</span><span class="cf-pcompare__tag cf-pcompare__tag--hi" aria-hidden="true">${hiT}</span></div></div>${c.label ? `<span class="cf-pcompare__label">${c.label[L]}</span>` : ''}</div>`;
+        });
+        out += '</div>';
+        const cap = b.caption || (b.compare && b.compare.caption);
+        if (cap) out += `<span class="cf-pcompareset__cap">${cap[L]}</span>`;
+        out += '</div>';
+        i++;
+      } else if (b.illustrations) {
+        i++;
+      } else if (b.browser) {
+        const idx = imgIdx++;
+        const url = b.url || 'datalog.barcelona';
+        const isSvg = /\.svg($|\?)/i.test(b.browser);
+        const mapAttr = b.map ? ` data-map="${b.map}"` : '';
+        const page = isSvg
+          ? `<div class="cf-browser__page" data-svg="${b.browser}"${mapAttr} role="img" aria-label="${(b.alt && b.alt[L]) || ''}"></div>`
+          : `<img class="cf-browser__page" src="${b.browser}" alt="${(b.alt && b.alt[L]) || ''}" loading="lazy">`;
+        const cap = b.caption ? b.caption[L] : '';
+        out += `<div class="cf-browser${b.small ? ' cf-browser--sm' : ''}"><div class="cf-browser__frame"><div class="cf-browser__chrome"><div class="cf-browser__dots"><i></i><i></i><i></i></div><div class="cf-browser__url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>${url}</div></div><div class="cf-browser__view" data-anim="${isSvg ? 'js' : 'on'}">${page}<div class="cf-browser__scrollbar"><i></i></div></div></div><button class="cf-browser__expand" data-idx="${idx}" aria-label="Ampliar imagen">⤢</button>${cap ? `<p class="cf-case-p" style="margin-top:14px;color:var(--text-muted);font-size:13px;">${cap}</p>` : ''}</div>`;
+        i++;
+      } else if (b.img && b.showcase) {
+        const idx = imgIdx++;
+        const hint = L === 'es' ? 'Arrastra para girar' : 'Drag to rotate';
+        out += `<div class="cf-case-showcase"><div class="cf-3d-scene"><div class="cf-3d-obj"><img src="${b.img}" alt="${(b.alt && b.alt[L]) || ''}" loading="lazy"></div></div><button class="cf-3d-expand" data-idx="${idx}" aria-label="Ampliar imagen">⤢</button><span class="cf-3d-hint">↺ ${hint}</span></div>`;
+        i++;
+      } else if (b.img) {
+        const group = [];
+        while (i < blocks.length && blocks[i].img && !blocks[i].showcase) { group.push(blocks[i]); i++; }
+        out += `<div class="cf-case-gallery${group.length === 1 ? ' cf-case-gallery--single' : ''}">`;
+        group.forEach(g => {
+          const idx = imgIdx++;
+          out += `<button class="cf-thumb" data-idx="${idx}" aria-label="Ampliar imagen"><img src="${g.img}" alt="${(g.alt && g.alt[L]) || ''}" loading="lazy"><span class="cf-thumb__zoom" aria-hidden="true">⤢</span></button>`;
+        });
+        out += '</div>';
+      } else if (b.quote) {
+        out += `<blockquote class="cf-case-quote">${b.quote[L]}</blockquote>`;
+        i++;
+      } else {
+        let html = '<div class="cf-case-block">';
+        if (b.h) html += `<h2 class="cf-case-h">${b.h[L]}</h2>`;
+        if (b.p) html += b.p[L].map(par => `<p class="cf-case-p">${par}</p>`).join('');
+        if (b.list) html += `<ul class="cf-case-list">${b.list[L].map(li => `<li>${li}</li>`).join('')}</ul>`;
+        html += '</div>';
+        out += html;
+        i++;
+      }
+    }
+    document.getElementById('cf-c-blocks').innerHTML = out;
+    // A text card left alone on its row spans the full width (2-col grid).
+    let run = [];
+    const flush = () => { if (run.length % 2 === 1) run[run.length - 1].classList.add('cf-case-block--full'); run = []; };
+    [...document.getElementById('cf-c-blocks').children].forEach(k => {
+      if (k.classList.contains('cf-case-block')) run.push(k); else flush();
+    });
+    flush();
+    this.bindThumbs();
+    this.renderFoot(d);
+  }
+
+  renderFoot(d) {
+    const L = this.lang;
+    const foot = document.getElementById('cf-c-foot');
+    const prevTxt = L === 'es' ? 'Proyecto anterior' : 'Previous project';
+    const nextTxt = L === 'es' ? 'Próximo proyecto' : 'Next project';
+    const link = (proj, dir) => proj ? `
+      <a class="cf-case-foot__link cf-case-foot__link--${dir}" href="${proj.id}.html">
+        <span class="cf-case-foot__dir">${dir === 'prev' ? '← ' + prevTxt : nextTxt + ' →'}</span>
+        <span class="cf-case-foot__name">${proj.title}</span>
+        <span class="cf-case-foot__sub">${proj.sub[L]}</span>
+      </a>` : `<div class="cf-case-foot__empty"></div>`;
+    foot.innerHTML = link(d.prev, 'prev') + link(d.next, 'next');
+    this.rebindCursor();
+  }
+
+  applyLang(l) {
+    this.lang = l;
+    localStorage.setItem('cf_tpl_lang', l);
+    document.documentElement.lang = l;
+    const t = this.NAV[l];
+    document.querySelectorAll('[data-k]').forEach(el => { const k = el.dataset.k; if (t[k] !== undefined) el.textContent = t[k]; });
+    const es = document.getElementById('cf-lang-es'), en = document.getElementById('cf-lang-en');
+    if (es) es.classList.toggle('is-active', l === 'es');
+    if (en) en.classList.toggle('is-active', l === 'en');
+    document.querySelectorAll('.cf-blang').forEach(b => b.classList.toggle('is-active', b.dataset.lang === l));
+    const d = this.data();
+    document.getElementById('cf-c-kicker').textContent = d.kicker[l];
+    document.getElementById('cf-c-lede').textContent = d.lede[l];
+    document.getElementById('cf-c-overview').textContent = d.overview[l];
+    this.render();
+  }
+
+  applyTheme(th) {
+    this.theme = th;
+    localStorage.setItem('cf_tpl_theme', th);
+    document.documentElement.setAttribute('data-theme', th);
+  }
+
+  initSky() {
+    const stars = document.getElementById('cf-stars');
+    if (stars && !stars.childElementCount) {
+      let html = '';
+      const N = this.reduce ? 40 : 90;
+      for (let i = 0; i < N; i++) {
+        const big = Math.random() < 0.16;
+        const x = (Math.random() * 100).toFixed(2);
+        const y = (Math.random() * 72).toFixed(2);
+        const tw = (2.2 + Math.random() * 3.6).toFixed(2);
+        const dl = (Math.random() * 4).toFixed(2);
+        html += `<span class="cf-star${big ? ' cf-star--lg' : ''}" style="left:${x}%;top:${y}%;--tw:${tw}s;--dl:${dl}s;"></span>`;
+      }
+      stars.innerHTML = html;
+    }
+    const clouds = document.getElementById('cf-clouds');
+    if (clouds && !clouds.childElementCount) {
+      const grad = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'
+        + '<linearGradient id="cf-cloud-grad" x1="0" y1="0" x2="0" y2="1">'
+        + '<stop offset="0" stop-color="#ffffff"/><stop offset="0.55" stop-color="#f2f7ff"/><stop offset="1" stop-color="#d4e6fb"/>'
+        + '</linearGradient></defs></svg>';
+      const svg = '<svg viewBox="0 0 232 132" preserveAspectRatio="xMidYMid meet" aria-hidden="true">'
+        + '<g fill="url(#cf-cloud-grad)">'
+        + '<ellipse cx="116" cy="92" rx="96" ry="26"/>'
+        + '<circle cx="70" cy="74" r="30"/><circle cx="112" cy="56" r="42"/><circle cx="158" cy="72" r="32"/>'
+        + '<circle cx="92" cy="82" r="28"/><circle cx="138" cy="82" r="26"/>'
+        + '</g></svg>';
+      const defs = [
+        { top: 11, scale: 1.0,  dur: 62, delay: -6,  op: 0.97 },
+        { top: 25, scale: 0.62, dur: 88, delay: -40, op: 0.72 },
+        { top: 7,  scale: 0.82, dur: 74, delay: -56, op: 0.86 },
+        { top: 39, scale: 1.16, dur: 98, delay: -18, op: 0.99 },
+        { top: 18, scale: 0.46, dur: 66, delay: -76, op: 0.6 },
+      ];
+      clouds.innerHTML = grad + defs.map(d =>
+        `<span class="cf-cloud" style="top:${d.top}%;--cs:${d.scale};opacity:${d.op};animation-duration:${d.dur}s;animation-delay:${d.delay}s;">${svg}</span>`
+      ).join('');
+    }
+  }
+
+  bindToggles() {
+    const th = document.getElementById('cf-theme');
+    if (th) th.addEventListener('click', () => this.applyTheme(this.theme === 'dark' ? 'light' : 'dark'));
+    ['cf-lang-es','cf-lang-en'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('click', () => this.applyLang(b.dataset.lang)); });
+  }
+
+  initBotnav() {
+    const btn = document.getElementById('cf-botmenu-btn');
+    const menu = document.getElementById('cf-botmenu');
+    const scrim = document.getElementById('cf-botscrim');
+    if (!btn || !menu) return;
+    const set = (o) => {
+      btn.classList.toggle('is-open', o);
+      menu.classList.toggle('is-open', o);
+      btn.setAttribute('aria-expanded', o ? 'true' : 'false');
+      menu.setAttribute('aria-hidden', o ? 'false' : 'true');
+      if (scrim) scrim.classList.toggle('is-open', o);
+    };
+    btn.addEventListener('click', (e) => { e.stopPropagation(); set(!menu.classList.contains('is-open')); });
+    if (scrim) scrim.addEventListener('click', () => set(false));
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => set(false)));
+    menu.querySelectorAll('.cf-blang').forEach(b => b.addEventListener('click', () => this.applyLang(b.dataset.lang)));
+    document.querySelectorAll('.cf-botnav__item:not(.cf-botnav__menu)').forEach(it => {
+      it.addEventListener('click', () => { it.classList.remove('is-pop'); void it.offsetWidth; it.classList.add('is-pop'); setTimeout(() => it.classList.remove('is-pop'), 650); });
+    });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+  }
+
+  initCursor() {
+    if (matchMedia('(hover:none),(pointer:coarse)').matches) return;
+    const dot = document.getElementById('cf-cur-dot'), ring = document.getElementById('cf-cur-ring');
+    if (!dot || !ring) return;
+    let mx = innerWidth/2, my = innerHeight/2, dx = mx, dy = my, rx = mx, ry = my;
+    addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    const loop = () => { dx += (mx-dx)*.3; dy += (my-dy)*.3; rx += (mx-rx)*.15; ry += (my-ry)*.15;
+      dot.style.left = dx+'px'; dot.style.top = dy+'px'; ring.style.left = rx+'px'; ring.style.top = ry+'px';
+      requestAnimationFrame(loop); };
+    loop();
+    this._ring = ring;
+    this.rebindCursor();
+  }
+  rebindCursor() {
+    const ring = this._ring; if (!ring) return;
+    const on = () => { ring.style.width = '64px'; ring.style.height = '64px'; ring.style.opacity = '1'; ring.style.borderColor = 'var(--accent)'; };
+    const off = () => { ring.style.width = '13px'; ring.style.height = '13px'; ring.style.opacity = '0'; ring.style.borderColor = 'var(--border-strong)'; };
+    document.querySelectorAll('a,button,.cf-case-foot__link,.cf-case-figure').forEach(el => { if (el._cb) return; el._cb = true; el.addEventListener('mouseenter', on); el.addEventListener('mouseleave', off); });
+  }
+
+  initNav() {
+    document.querySelectorAll('.cf-navlink').forEach(a => {
+      a.addEventListener('mouseenter', () => a.style.color = 'var(--text)');
+      a.addEventListener('mouseleave', () => a.style.color = 'var(--text-muted)');
+    });
+    document.querySelectorAll('.cf-case-foot__link[href]').forEach(a => {
+      a.addEventListener('click', () => {
+        document.body.style.transition = 'opacity .35s var(--ease-out)';
+        document.body.style.opacity = '0';
+      });
+    });
+  }
+}
+new Component().componentDidMount();
+
 </script>
 </body>
 </html>
