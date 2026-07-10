@@ -13,7 +13,8 @@
       "Bash(cp /Users/carolina/Downloads/NODOS/prototype.html /Users/carolina/Desktop/portfolio-caro/prototype/nodos/prototype.html)",
       "WebFetch(domain:www.figma.com)",
       "Bash(curl -s https://carolinaferreyra.space/nodos.html)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(gh auth *)"
     ]
   }
 }

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <pattern id="stripes" width="28" height="28" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <rect width="28" height="28" fill="#f7f3ed"></rect>
+      <rect width="14" height="28" fill="#eae2d3"></rect>
+    </pattern>
+  </defs>
+  <rect width="800" height="600" fill="url(#stripes)"></rect>
+  <rect x="0" y="0" width="800" height="600" fill="none" stroke="#3d2b56" stroke-opacity="0.15" stroke-width="2"></rect>
+  <text x="400" y="288" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="20" fill="#3d2b56" letter-spacing="1">MODO CASONA</text>
+  <text x="400" y="316" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#7a6255">captura del sitio pendiente</text>
+</svg>
