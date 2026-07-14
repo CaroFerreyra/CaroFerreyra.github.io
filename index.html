@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,8 +48,8 @@
       <span class="cf-daynight__thumb" aria-hidden="true"></span>
     </button>
     <div class="cf-seg" role="group" aria-label="Language">
-      <button id="cf-lang-es" class="cf-seg__btn is-active" data-lang="es">ES</button>
-      <button id="cf-lang-en" class="cf-seg__btn" data-lang="en">EN</button>
+      <button id="cf-lang-es" class="cf-seg__btn" data-lang="es">ES</button>
+      <button id="cf-lang-en" class="cf-seg__btn is-active" data-lang="en">EN</button>
     </div>
   </div>
 </nav>
@@ -73,8 +73,8 @@
   <a class="cf-botmenu__link" role="menuitem" href="#cf-about" data-k="nav_about">Sobre mí</a>
   <a class="cf-botmenu__link" role="menuitem" href="#cf-contact" data-k="nav_contact">Contacto</a>
   <div class="cf-botmenu__lang cf-seg" role="group" aria-label="Idioma">
-    <button class="cf-seg__btn cf-blang is-active" data-lang="es">ES</button>
-    <button class="cf-seg__btn cf-blang" data-lang="en">EN</button>
+    <button class="cf-seg__btn cf-blang" data-lang="es">ES</button>
+    <button class="cf-seg__btn cf-blang is-active" data-lang="en">EN</button>
   </div>
 </div>
 
@@ -180,7 +180,7 @@ class Component {
     document.body.style.color = 'var(--text)';
     document.body.style.minHeight = '100vh';
     this.reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    this.lang = (this.props.defaultLang) || (localStorage.getItem('cf_tpl_lang') || 'es');
+    this.lang = (this.props.defaultLang) || (localStorage.getItem('cf_tpl_lang') || 'en');
     this.theme = localStorage.getItem('cf_tpl_theme') || 'dark';
     this.PROJECTS = this.data();
     this.T = this.dict();
