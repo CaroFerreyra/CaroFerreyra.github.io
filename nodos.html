@@ -132,7 +132,7 @@ class Component {
     this.reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const qs = new URLSearchParams(location.search);
     this.id = 'nodos';
-    this.lang = qs.get('lang') || localStorage.getItem('cf_tpl_lang') || 'es';
+    this.lang = qs.get('lang') || localStorage.getItem('cf_tpl_lang') || 'en';
     this.theme = qs.get('theme') || localStorage.getItem('cf_tpl_theme') || 'dark';
     this.CASES = window.CF_CASES || {};
     this.NAV = { es:{nav_works:'Trabajos',nav_about:'Sobre mí',nav_contact:'Contacto',c_cv:'Ver CV',overview:'Overview',f_made:'Diseñado con ✦'},
